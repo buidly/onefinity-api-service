@@ -9,10 +9,11 @@ import { NodeSort } from "./entities/node.sort";
 import { SortNodes } from "src/common/entities/sort.nodes";
 import { NodeFilter } from "./entities/node.filter";
 import { QueryPagination } from "src/common/entities/query.pagination";
-import { ParseAddressPipe, ParseBlsHashPipe, ParseBoolPipe, ParseEnumPipe, ParseIntPipe } from "@multiversx/sdk-nestjs-common";
+import { ParseBlsHashPipe, ParseBoolPipe, ParseEnumPipe, ParseIntPipe } from "@multiversx/sdk-nestjs-common";
 import { NodeAuction } from "./entities/node.auction";
 import { NodeSortAuction } from "./entities/node.sort.auction";
 import { NodeAuctionFilter } from "./entities/node.auction.filter";
+import { ParseAddressPipe } from 'src/pipes/parse.address.pipe';
 
 @Controller()
 @ApiTags('nodes')

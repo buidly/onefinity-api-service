@@ -1,4 +1,4 @@
-import { ParseAddressPipe, ParseCollectionPipe, ParseEnumPipe } from "@multiversx/sdk-nestjs-common";
+import { ParseCollectionPipe, ParseEnumPipe } from "@multiversx/sdk-nestjs-common";
 import { Controller, DefaultValuePipe, Get, NotFoundException, Param, ParseIntPipe, Query } from "@nestjs/common";
 import { ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { QueryPagination } from "src/common/entities/query.pagination";
@@ -8,6 +8,7 @@ import { AuctionStatus } from "./entities/auction.status";
 import { Auctions } from "./entities/auctions";
 import { CollectionAuctionStats } from "./entities/collection.auction.stats";
 import { NftMarketplaceService } from "./nft.marketplace.service";
+import { ParseAddressPipe } from 'src/pipes/parse.address.pipe';
 
 @Controller()
 @ApiTags('marketplace')

@@ -33,7 +33,7 @@ import { ProviderStake } from '../stake/entities/provider.stake';
 import { TokenDetailedWithBalance } from '../tokens/entities/token.detailed.with.balance';
 import { NftCollectionAccount } from '../collections/entities/nft.collection.account';
 import { TokenWithRoles } from '../tokens/entities/token.with.roles';
-import { ParseAddressPipe, ParseTokenPipe, OriginLogger, ParseArrayPipe, ParseBlockHashPipe, ParseCollectionPipe, ParseNftPipe, ParseBoolPipe, ParseEnumArrayPipe, ParseEnumPipe, ParseIntPipe, ParseTokenOrNftPipe, ParseTransactionHashPipe, ParseAddressArrayPipe, ApplyComplexity, ParseNftArrayPipe } from '@multiversx/sdk-nestjs-common';
+import { ParseTokenPipe, OriginLogger, ParseArrayPipe, ParseBlockHashPipe, ParseCollectionPipe, ParseNftPipe, ParseBoolPipe, ParseEnumArrayPipe, ParseEnumPipe, ParseIntPipe, ParseTokenOrNftPipe, ParseTransactionHashPipe, ParseAddressArrayPipe, ApplyComplexity, ParseNftArrayPipe } from '@multiversx/sdk-nestjs-common';
 import { QueryPagination } from 'src/common/entities/query.pagination';
 import { TransactionQueryOptions } from '../transactions/entities/transactions.query.options';
 import { TokenWithRolesFilter } from '../tokens/entities/token.with.roles.filter';
@@ -57,6 +57,7 @@ import { AccountKeyFilter } from './entities/account.key.filter';
 import { ScamType } from 'src/common/entities/scam-type.enum';
 import { DeepHistoryInterceptor } from 'src/interceptors/deep-history.interceptor';
 import { MexPairType } from '../mex/entities/mex.pair.type';
+import { ParseAddressPipe } from 'src/pipes/parse.address.pipe';
 
 @Controller()
 @ApiTags('accounts')

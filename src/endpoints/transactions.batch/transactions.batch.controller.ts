@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpException, HttpStatus, Logger, Param, Post, 
 import { TransactionBatchSimplified } from "./entities/transaction.batch.simplified";
 import { TransactionBatchSimplifiedResult } from "./entities/transaction.batch.simplified.result";
 import { TransactionsBatchService } from "./transactions.batch.service";
-import { ParseAddressPipe } from "@multiversx/sdk-nestjs-common";
+import { ParseAddressPipe } from 'src/pipes/parse.address.pipe';
 
 @Controller()
 export class TransactionsBatchController {

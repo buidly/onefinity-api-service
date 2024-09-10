@@ -6,11 +6,12 @@ import { GatewayService } from "src/common/gateway/gateway.service";
 import { Response, Request } from "express";
 import { GatewayComponentRequest } from "src/common/gateway/entities/gateway.component.request";
 import { PluginService } from "src/common/plugins/plugin.service";
-import { Constants, ParseAddressPipe, ParseBlockHashPipe, ParseBlsHashPipe, ParseIntPipe, ParseTransactionHashPipe } from "@multiversx/sdk-nestjs-common";
+import { Constants, ParseBlockHashPipe, ParseBlsHashPipe, ParseIntPipe, ParseTransactionHashPipe } from "@multiversx/sdk-nestjs-common";
 import { CacheService, NoCache } from "@multiversx/sdk-nestjs-cache";
 import { OriginLogger } from "@multiversx/sdk-nestjs-common";
 import { DeepHistoryInterceptor } from "src/interceptors/deep-history.interceptor";
 import { DisableFieldsInterceptorOnController } from "@multiversx/sdk-nestjs-http";
+import { ParseAddressPipe } from 'src/pipes/parse.address.pipe';
 
 @Controller()
 @ApiTags('proxy')

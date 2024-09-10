@@ -1,36 +1,36 @@
-import { Constants, OriginLogger, BinaryUtils, AddressUtils } from "@multiversx/sdk-nestjs-common";
-import { ApiService } from "@multiversx/sdk-nestjs-http";
-import { CacheService } from "@multiversx/sdk-nestjs-cache";
-import { HttpStatus, Injectable } from "@nestjs/common";
-import { ApiConfigService } from "src/common/api-config/api.config.service";
-import { CacheInfo } from "src/utils/cache.info";
-import { VmQueryService } from "../vm.query/vm.query.service";
-import { UsernameUtils } from "./username.utils";
+import { CacheService } from '@multiversx/sdk-nestjs-cache';
+import {
+  AddressUtils,
+  BinaryUtils,
+  Constants,
+} from '@multiversx/sdk-nestjs-common';
+import { Injectable } from '@nestjs/common';
+import { CacheInfo } from 'src/utils/cache.info';
+import { VmQueryService } from '../vm.query/vm.query.service';
+import { UsernameUtils } from './username.utils';
 
 @Injectable()
 export class UsernameService {
-  private readonly logger = new OriginLogger(UsernameService.name);
-
   constructor(
     private readonly cachingService: CacheService,
-    private readonly apiService: ApiService,
-    private readonly apiConfigService: ApiConfigService,
-    private readonly vmQueryService: VmQueryService
-  ) { }
+    private readonly vmQueryService: VmQueryService,
+  ) {}
 
-  async getUsernameForAddressRaw(address: string): Promise<string | null> {
-    try {
-      // eslint-disable-next-line require-await
-      const result = await this.apiService.get(`${this.apiConfigService.getMaiarIdUrl()}/users/api/v1/users/${address}`, undefined, async error => error?.response?.status === HttpStatus.FORBIDDEN);
+  async getUsernameForAddressRaw(_address: string): Promise<string | null> {
+    //This method has been disabled because maiarId only accepts erd addresses
+    // try {
+    //   // eslint-disable-next-line require-await
+    //   const result = await this.apiService.get(`${this.apiConfigService.getMaiarIdUrl()}/users/api/v1/users/${address}`, undefined, async error => error?.response?.status === HttpStatus.FORBIDDEN);
 
-      const username = result?.data?.herotag;
+    //   const username = result?.data?.herotag;
 
-      return username ?? null;
-    } catch (error) {
-      this.logger.error(error);
-      this.logger.error(`Error when getting username for address '${address}'`);
-      return null;
-    }
+    //   return username ?? null;
+    // } catch (error) {
+    //   this.logger.error(error);
+    //   this.logger.error(`Error when getting username for address '${address}'`);
+    //   return null;
+    // }
+    return null;
   }
 
   async getUsernameForAddress(address: string): Promise<string | null> {
@@ -41,12 +41,19 @@ export class UsernameService {
     );
   }
 
-  private async getAddressForUsernameRaw(username: string): Promise<string | null> {
+  private async getAddressForUsernameRaw(
+    username: string,
+  ): Promise<string | null> {
     try {
       const contract = UsernameUtils.getContractAddress(username);
       const encoded = UsernameUtils.encodeUsername(username);
 
-      const [encodedAddress] = await this.vmQueryService.vmQuery(contract, 'resolve', undefined, [encoded]);
+      const [encodedAddress] = await this.vmQueryService.vmQuery(
+        contract,
+        'resolve',
+        undefined,
+        [encoded],
+      );
 
       if (encodedAddress) {
         const publicKey = BinaryUtils.base64ToHex(encodedAddress);
@@ -63,7 +70,7 @@ export class UsernameService {
     const address = await this.cachingService.getOrSet(
       UsernameUtils.normalizeUsername(username),
       async () => await this.getAddressForUsernameRaw(username),
-      Constants.oneWeek()
+      Constants.oneWeek(),
     );
 
     if (!address) {
@@ -78,7 +85,10 @@ export class UsernameService {
     return address;
   }
 
-  getUsernameRedirectRoute(address: string, withGuardianInfo: boolean | undefined) {
+  getUsernameRedirectRoute(
+    address: string,
+    withGuardianInfo: boolean | undefined,
+  ) {
     const params: {} = {
       withGuardianInfo,
     };

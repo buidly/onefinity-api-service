@@ -7,7 +7,7 @@ import { StatusCheckerThresholds } from './entities/status-checker-thresholds';
 
 @Injectable()
 export class ApiConfigService {
-  constructor(private readonly configService: ConfigService) { }
+  constructor(private readonly configService: ConfigService) {}
 
   getConfig<T>(configKey: string): T | undefined {
     return this.configService.get<T>(configKey);
@@ -23,11 +23,16 @@ export class ApiConfigService {
   }
 
   isGuestCacheFeatureActive(): boolean {
-    return this.configService.get<boolean>('features.guestCaching.enabled') ?? false;
+    return (
+      this.configService.get<boolean>('features.guestCaching.enabled') ?? false
+    );
   }
 
   getGuestCacheHitsThreshold(): number {
-    return this.configService.get<number>('features.guestCaching.hitsThreshold') ?? 100;
+    return (
+      this.configService.get<number>('features.guestCaching.hitsThreshold') ??
+      100
+    );
   }
 
   getGuestCacheTtl(): number {
@@ -53,7 +58,9 @@ export class ApiConfigService {
   }
 
   getSnapshotlessGatewayUrl(): string | undefined {
-    const gatewayUrls = this.configService.get<string[]>('urls.snapshotlessGateway') ?? this.configService.get<string[]>('urls.lightGateway');
+    const gatewayUrls =
+      this.configService.get<string[]>('urls.snapshotlessGateway') ??
+      this.configService.get<string[]>('urls.lightGateway');
     if (!gatewayUrls) {
       return undefined;
     }
@@ -71,7 +78,9 @@ export class ApiConfigService {
   }
 
   getIpfsUrl(): string {
-    return this.configService.get<string>('urls.ipfs') ?? 'https://ipfs.io/ipfs';
+    return (
+      this.configService.get<string>('urls.ipfs') ?? 'https://ipfs.io/ipfs'
+    );
   }
 
   getSocketUrl(): string {
@@ -105,7 +114,9 @@ export class ApiConfigService {
   }
 
   getStakingV4ActivationEpoch(): number {
-    const activationEpoch = this.configService.get<number>('features.stakingV4.activationEpoch');
+    const activationEpoch = this.configService.get<number>(
+      'features.stakingV4.activationEpoch',
+    );
     if (activationEpoch === undefined) {
       throw new Error('No stakingV4 activation epoch present');
     }
@@ -114,7 +125,8 @@ export class ApiConfigService {
   }
 
   getDelegationContractAddress(): string | undefined {
-    return this.configService.get<string>('contracts.delegation');
+    // return this.configService.get<string>('contracts.delegation');
+    return undefined;
   }
 
   getMetabondingContractAddress(): string | undefined {
@@ -155,11 +167,17 @@ export class ApiConfigService {
   }
 
   getNftQueueName(): string {
-    return this.configService.get<string>('features.processNfts.nftQueueName', 'api-process-nfts');
+    return this.configService.get<string>(
+      'features.processNfts.nftQueueName',
+      'api-process-nfts',
+    );
   }
 
   getNftQueueDlqName(): string {
-    return this.configService.get<string>('features.processNfts.deadLetterQueueName', 'api-process-nfts-dlq');
+    return this.configService.get<string>(
+      'features.processNfts.deadLetterQueueName',
+      'api-process-nfts-dlq',
+    );
   }
 
   getCacheTtl(): number {
@@ -188,7 +206,9 @@ export class ApiConfigService {
   }
 
   getAxiosTimeout(): number {
-    return this.configService.get<number>('keepAliveTimeout.downstream') ?? 61000;
+    return (
+      this.configService.get<number>('keepAliveTimeout.downstream') ?? 61000
+    );
   }
 
   getServerTimeout(): number {
@@ -220,7 +240,11 @@ export class ApiConfigService {
   }
 
   getCollectionPropertiesFromGateway(): boolean {
-    return this.configService.get<boolean>('flags.collectionPropertiesFromGateway') ?? false;
+    return (
+      this.configService.get<boolean>(
+        'flags.collectionPropertiesFromGateway',
+      ) ?? false
+    );
   }
 
   getProvidersUrl(): string {
@@ -249,38 +273,80 @@ export class ApiConfigService {
   getTempUrl(): string {
     const tmpUrl = this.configService.get<string>('urls.tmp');
     if (!tmpUrl) {
-      throw new Error("No tmp url present");
+      throw new Error('No tmp url present');
     }
 
     return tmpUrl;
   }
 
   getIsTransactionProcessorCronActive(): boolean {
-    return this.configService.get<boolean>('features.transactionProcessor.enabled') ?? this.configService.get<boolean>('cron.transactionProcessor') ?? false;
+    return (
+      this.configService.get<boolean>(
+        'features.transactionProcessor.enabled',
+      ) ??
+      this.configService.get<boolean>('cron.transactionProcessor') ??
+      false
+    );
   }
 
   getTransactionProcessorMaxLookBehind(): number {
-    return this.configService.get<number>('features.transactionProcessor.maxLookBehind') ?? this.configService.get<number>('cron.transactionProcessorMaxLookBehind') ?? 100;
+    return (
+      this.configService.get<number>(
+        'features.transactionProcessor.maxLookBehind',
+      ) ??
+      this.configService.get<number>(
+        'cron.transactionProcessorMaxLookBehind',
+      ) ??
+      100
+    );
   }
 
   getIsTransactionCompletedCronActive(): boolean {
-    return this.configService.get<boolean>('features.transactionCompleted.enabled') ?? this.configService.get<boolean>('cron.transactionCompleted') ?? false;
+    return (
+      this.configService.get<boolean>(
+        'features.transactionCompleted.enabled',
+      ) ??
+      this.configService.get<boolean>('cron.transactionCompleted') ??
+      false
+    );
   }
 
   getTransactionCompletedMaxLookBehind(): number {
-    return this.configService.get<number>('features.transactionCompleted.maxLookBehind') ?? this.configService.get<number>('cron.transactionCompletedMaxLookBehind') ?? 100;
+    return (
+      this.configService.get<number>(
+        'features.transactionCompleted.maxLookBehind',
+      ) ??
+      this.configService.get<number>(
+        'cron.transactionCompletedMaxLookBehind',
+      ) ??
+      100
+    );
   }
 
   getTransactionCompletedLogLevel(): LogTopic {
-    return this.configService.get<LogTopic>('features.transactionCompleted.logLevel') ?? LogTopic.CrossShardSmartContractResult;
+    return (
+      this.configService.get<LogTopic>(
+        'features.transactionCompleted.logLevel',
+      ) ?? LogTopic.CrossShardSmartContractResult
+    );
   }
 
   getIsTransactionBatchCronActive(): boolean {
-    return this.configService.get<boolean>('features.transactionBatch.enabled') ?? this.configService.get<boolean>('cron.transactionBatch') ?? false;
+    return (
+      this.configService.get<boolean>('features.transactionBatch.enabled') ??
+      this.configService.get<boolean>('cron.transactionBatch') ??
+      false
+    );
   }
 
   getTransactionBatchMaxLookBehind(): number {
-    return this.configService.get<number>('features.transactionBatch.maxLookBehind') ?? this.configService.get<number>('cron.transactionBatchMaxLookBehind') ?? 100;
+    return (
+      this.configService.get<number>(
+        'features.transactionBatch.maxLookBehind',
+      ) ??
+      this.configService.get<number>('cron.transactionBatchMaxLookBehind') ??
+      100
+    );
   }
 
   getIsCacheWarmerCronActive(): boolean {
@@ -293,11 +359,17 @@ export class ApiConfigService {
   }
 
   getIsApiStatusCheckerActive(): boolean {
-    return this.configService.get<boolean>('features.statusChecker.enabled') ?? this.configService.get<boolean>('cron.statusChecker') ?? false;
+    return (
+      this.configService.get<boolean>('features.statusChecker.enabled') ??
+      this.configService.get<boolean>('cron.statusChecker') ??
+      false
+    );
   }
 
   getStatusCheckerThresholds(): StatusCheckerThresholds {
-    const thresholds = this.configService.get<StatusCheckerThresholds>('features.statusChecker.thresholds');
+    const thresholds = this.configService.get<StatusCheckerThresholds>(
+      'features.statusChecker.thresholds',
+    );
     return new StatusCheckerThresholds(thresholds);
   }
 
@@ -306,11 +378,14 @@ export class ApiConfigService {
   }
 
   getIsNftScamInfoEnabled(): boolean {
-    return this.configService.get<boolean>('features.nftScamInfo.enabled') ?? false;
+    return (
+      this.configService.get<boolean>('features.nftScamInfo.enabled') ?? false
+    );
   }
 
   getIsQueueWorkerCronActive(): boolean {
-    const isQueueWorkerActive = this.configService.get<boolean>('cron.queueWorker');
+    const isQueueWorkerActive =
+      this.configService.get<boolean>('cron.queueWorker');
     if (isQueueWorkerActive === undefined) {
       throw new Error('No queue worker cron flag present');
     }
@@ -328,7 +403,9 @@ export class ApiConfigService {
   }
 
   isEventsNotifierFeatureActive(): boolean {
-    const isEventsNotifierActive = this.configService.get<boolean>('features.eventsNotifier.enabled');
+    const isEventsNotifierActive = this.configService.get<boolean>(
+      'features.eventsNotifier.enabled',
+    );
     if (isEventsNotifierActive === undefined) {
       return false;
     }
@@ -337,7 +414,9 @@ export class ApiConfigService {
   }
 
   getEventsNotifierFeaturePort(): number {
-    const eventsNotifierPort = this.configService.get<number>('features.eventsNotifier.port');
+    const eventsNotifierPort = this.configService.get<number>(
+      'features.eventsNotifier.port',
+    );
     if (eventsNotifierPort === undefined) {
       throw new Error('No events notifier port present');
     }
@@ -355,7 +434,9 @@ export class ApiConfigService {
   }
 
   getEventsNotifierExchange(): string {
-    const exchange = this.configService.get<string>('features.eventsNotifier.exchange');
+    const exchange = this.configService.get<string>(
+      'features.eventsNotifier.exchange',
+    );
     if (!exchange) {
       throw new Error('No events notifier exchange present');
     }
@@ -364,7 +445,11 @@ export class ApiConfigService {
   }
 
   getIsProcessNftsFlagActive(): boolean {
-    return this.configService.get<boolean>('features.processNfts.enabled') ?? this.configService.get<boolean>('flags.processNfts') ?? false;
+    return (
+      this.configService.get<boolean>('features.processNfts.enabled') ??
+      this.configService.get<boolean>('flags.processNfts') ??
+      false
+    );
   }
 
   getIsIndexerV3FlagActive(): boolean {
@@ -406,7 +491,11 @@ export class ApiConfigService {
   }
 
   getIsAuthActive(): boolean {
-    return this.configService.get<boolean>('features.auth.enabled') ?? this.configService.get<boolean>('api.auth') ?? false;
+    return (
+      this.configService.get<boolean>('features.auth.enabled') ??
+      this.configService.get<boolean>('api.auth') ??
+      false
+    );
   }
 
   getDatabaseType(): string {
@@ -436,15 +525,16 @@ export class ApiConfigService {
     return databasePort;
   }
 
-
   getDatabaseUsername(): string | undefined {
-    const databaseUsername = this.configService.get<string>('database.username');
+    const databaseUsername =
+      this.configService.get<string>('database.username');
 
     return databaseUsername;
   }
 
   getDatabasePassword(): string | undefined {
-    const databasePassword = this.configService.get<string>('database.password');
+    const databasePassword =
+      this.configService.get<string>('database.password');
 
     return databasePassword;
   }
@@ -478,7 +568,8 @@ export class ApiConfigService {
   }
 
   getDatabaseSlaveConnections(): DatabaseConnectionOptions[] {
-    const slaves = this.configService.get<DatabaseConnectionOptions[]>('database.slaves');
+    const slaves =
+      this.configService.get<DatabaseConnectionOptions[]>('database.slaves');
     if (!slaves) {
       return [];
     }
@@ -594,7 +685,8 @@ export class ApiConfigService {
   }
 
   getNftThumbnailsUrl(): string {
-    const nftThumbnailsUrl = this.configService.get<string>('urls.nftThumbnails');
+    const nftThumbnailsUrl =
+      this.configService.get<string>('urls.nftThumbnails');
     if (!nftThumbnailsUrl) {
       throw new Error('No nft thumbnails url present');
     }
@@ -603,7 +695,9 @@ export class ApiConfigService {
   }
 
   getSecurityAdmins(): string[] {
-    const admins = this.configService.get<string[]>('features.auth.admins') ?? this.configService.get<string[]>('security.admins');
+    const admins =
+      this.configService.get<string[]>('features.auth.admins') ??
+      this.configService.get<string[]>('security.admins');
     if (admins === undefined) {
       throw new Error('No security admins value present');
     }
@@ -612,7 +706,9 @@ export class ApiConfigService {
   }
 
   getJwtSecret(): string {
-    const jwtSecret = this.configService.get<string>('features.auth.jwtSecret') ?? this.configService.get<string>('security.jwtSecret');
+    const jwtSecret =
+      this.configService.get<string>('features.auth.jwtSecret') ??
+      this.configService.get<string>('security.jwtSecret');
     if (!jwtSecret) {
       throw new Error('No jwtSecret present');
     }
@@ -650,11 +746,20 @@ export class ApiConfigService {
   }
 
   private isExchangeEnabledInternal(): boolean {
-    return this.configService.get<boolean>('features.exchange.enabled') ?? false;
+    return (
+      this.configService.get<boolean>('features.exchange.enabled') ?? false
+    );
   }
 
   private getExchangeServiceUrlLegacy(): string | undefined {
-    return this.configService.get<string>('transaction-action.mex.microServiceUrl') ?? this.configService.get<string>('plugins.transaction-action.mex.microServiceUrl');
+    return (
+      this.configService.get<string>(
+        'transaction-action.mex.microServiceUrl',
+      ) ??
+      this.configService.get<string>(
+        'plugins.transaction-action.mex.microServiceUrl',
+      )
+    );
   }
 
   isExchangeEnabled(): boolean {
@@ -699,23 +804,38 @@ export class ApiConfigService {
   }
 
   isTransactionPoolEnabled(): boolean {
-    return this.configService.get<boolean>('features.transactionPool.enabled') ?? false;
+    return (
+      this.configService.get<boolean>('features.transactionPool.enabled') ??
+      false
+    );
   }
 
   isTransactionPoolCacheWarmerEnabled(): boolean {
-    return this.configService.get<boolean>('features.transactionPoolWarmer.enabled') ?? false;
+    return (
+      this.configService.get<boolean>(
+        'features.transactionPoolWarmer.enabled',
+      ) ?? false
+    );
   }
 
   isUpdateAccountExtraDetailsEnabled(): boolean {
-    return this.configService.get<boolean>('features.updateAccountExtraDetails.enabled') ?? false;
+    return (
+      this.configService.get<boolean>(
+        'features.updateAccountExtraDetails.enabled',
+      ) ?? false
+    );
   }
 
   getAccountExtraDetailsTransfersLast24hUrl(): string | undefined {
-    return this.configService.get<string>('features.updateAccountExtraDetails.transfersLast24hUrl');
+    return this.configService.get<string>(
+      'features.updateAccountExtraDetails.transfersLast24hUrl',
+    );
   }
 
   getTransactionPoolCacheWarmerCronExpression(): string {
-    const cronExpression = this.configService.get<string>('features.transactionPoolWarmer.cronExpression');
+    const cronExpression = this.configService.get<string>(
+      'features.transactionPoolWarmer.cronExpression',
+    );
     if (!cronExpression) {
       throw new Error('No transaction pool cron expression present');
     }
@@ -723,15 +843,23 @@ export class ApiConfigService {
   }
 
   getTransactionPoolCacheWarmerTtlInSeconds(): number {
-    return this.configService.get<number>('features.transactionPoolWarmer.ttlInSeconds') ?? 6;
+    return (
+      this.configService.get<number>(
+        'features.transactionPoolWarmer.ttlInSeconds',
+      ) ?? 6
+    );
   }
 
   isStakingV4Enabled(): boolean {
-    return this.configService.get<boolean>('features.stakingV4.enabled') ?? false;
+    return (
+      this.configService.get<boolean>('features.stakingV4.enabled') ?? false
+    );
   }
 
   getStakingV4CronExpression(): string {
-    const cronExpression = this.configService.get<string>('features.stakingV4.cronExpression');
+    const cronExpression = this.configService.get<string>(
+      'features.stakingV4.cronExpression',
+    );
     if (!cronExpression) {
       throw new Error('No staking V4 cron expression present');
     }
@@ -744,23 +872,37 @@ export class ApiConfigService {
   }
 
   getTpsMaxLookBehindNonces(): number {
-    return this.configService.get<number>('features.tps.maxLookBehindNonces') ?? 100;
+    return (
+      this.configService.get<number>('features.tps.maxLookBehindNonces') ?? 100
+    );
   }
 
   isNftExtendedAttributesEnabled(): boolean {
-    return this.configService.get<boolean>('features.nftExtendedAttributes.enabled') ?? false;
+    return (
+      this.configService.get<boolean>(
+        'features.nftExtendedAttributes.enabled',
+      ) ?? false
+    );
   }
 
   getNftExtendedAttributesNsfwThreshold(): number {
-    return this.configService.get<number>('features.nftExtendedAttributes.nsfwThreshold') ?? 0.85;
+    return (
+      this.configService.get<number>(
+        'features.nftExtendedAttributes.nsfwThreshold',
+      ) ?? 0.85
+    );
   }
 
   isNodeEpochsLeftEnabled(): boolean {
-    return this.configService.get<boolean>('features.nodeEpochsLeft.enabled') ?? false;
+    return (
+      this.configService.get<boolean>('features.nodeEpochsLeft.enabled') ??
+      false
+    );
   }
 
   getIndexerSlaveConnections(): DatabaseConnectionOptions[] {
-    const slaves = this.configService.get<DatabaseConnectionOptions[]>('indexer.slaves');
+    const slaves =
+      this.configService.get<DatabaseConnectionOptions[]>('indexer.slaves');
     if (!slaves) {
       return [];
     }
@@ -816,19 +958,30 @@ export class ApiConfigService {
   }
 
   isNodeSyncProgressEnabled(): boolean {
-    return this.configService.get<boolean>('features.nodeSyncProgress.enabled') ?? false;
+    return (
+      this.configService.get<boolean>('features.nodeSyncProgress.enabled') ??
+      false
+    );
   }
 
   isUpdateCollectionExtraDetailsEnabled(): boolean {
-    return this.configService.get<boolean>('features.updateCollectionExtraDetails.enabled') ?? false;
+    return (
+      this.configService.get<boolean>(
+        'features.updateCollectionExtraDetails.enabled',
+      ) ?? false
+    );
   }
 
   isMarketplaceFeatureEnabled(): boolean {
-    return this.configService.get<boolean>('features.marketplace.enabled') ?? false;
+    return (
+      this.configService.get<boolean>('features.marketplace.enabled') ?? false
+    );
   }
 
   getMarketplaceServiceUrl(): string {
-    const serviceUrl = this.configService.get<string>('features.marketplace.serviceUrl');
+    const serviceUrl = this.configService.get<string>(
+      'features.marketplace.serviceUrl',
+    );
     if (!serviceUrl) {
       throw new Error('No marketplace service url present');
     }
@@ -837,11 +990,16 @@ export class ApiConfigService {
   }
 
   getNativeAuthAcceptedOrigins(): string[] {
-    return this.configService.get<string[]>('features.auth.acceptedOrigins') ?? [''];
+    return (
+      this.configService.get<string[]>('features.auth.acceptedOrigins') ?? ['']
+    );
   }
 
   getNativeAuthMaxExpirySeconds(): number {
-    return this.configService.get<number>('features.auth.maxExpirySeconds') ?? Constants.oneDay();
+    return (
+      this.configService.get<number>('features.auth.maxExpirySeconds') ??
+      Constants.oneDay()
+    );
   }
 
   isDataApiFeatureEnabled(): boolean {
@@ -849,7 +1007,9 @@ export class ApiConfigService {
   }
 
   getDataApiServiceUrl(): string {
-    const serviceUrl = this.configService.get<string>('features.dataApi.serviceUrl');
+    const serviceUrl = this.configService.get<string>(
+      'features.dataApi.serviceUrl',
+    );
     if (!serviceUrl) {
       throw new Error('No data-api service url present');
     }
@@ -858,11 +1018,15 @@ export class ApiConfigService {
   }
 
   isDeepHistoryGatewayEnabled(): boolean {
-    return this.configService.get<boolean>('features.deepHistory.enabled') ?? false;
+    return (
+      this.configService.get<boolean>('features.deepHistory.enabled') ?? false
+    );
   }
 
   getDeepHistoryGatewayUrl(): string {
-    const deepHistoryUrl = this.configService.get<string>('features.deepHistory.url');
+    const deepHistoryUrl = this.configService.get<string>(
+      'features.deepHistory.url',
+    );
     if (!deepHistoryUrl) {
       throw new Error('No deep history url present');
     }
@@ -871,11 +1035,15 @@ export class ApiConfigService {
   }
 
   isTokensFetchFeatureEnabled(): boolean {
-    return this.configService.get<boolean>('features.tokensFetch.enabled') ?? false;
+    return (
+      this.configService.get<boolean>('features.tokensFetch.enabled') ?? false
+    );
   }
 
   getTokensFetchServiceUrl(): string {
-    const serviceUrl = this.configService.get<string>('features.tokensFetch.serviceUrl');
+    const serviceUrl = this.configService.get<string>(
+      'features.tokensFetch.serviceUrl',
+    );
     if (!serviceUrl) {
       throw new Error('No tokens fetch service url present');
     }
@@ -884,11 +1052,15 @@ export class ApiConfigService {
   }
 
   isNodesFetchFeatureEnabled(): boolean {
-    return this.configService.get<boolean>('features.nodesFetch.enabled') ?? false;
+    return (
+      this.configService.get<boolean>('features.nodesFetch.enabled') ?? false
+    );
   }
 
   getNodesFetchServiceUrl(): string {
-    const serviceUrl = this.configService.get<string>('features.nodesFetch.serviceUrl');
+    const serviceUrl = this.configService.get<string>(
+      'features.nodesFetch.serviceUrl',
+    );
     if (!serviceUrl) {
       throw new Error('No nodes fetch service url present');
     }

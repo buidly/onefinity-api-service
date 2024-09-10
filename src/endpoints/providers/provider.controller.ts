@@ -2,12 +2,13 @@ import { Controller, DefaultValuePipe, Get, HttpException, HttpStatus, Param, Pa
 import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { ProviderService } from "./provider.service";
 import { Provider } from "./entities/provider";
-import { ParseAddressArrayPipe, ParseAddressPipe, ParseBoolPipe } from "@multiversx/sdk-nestjs-common";
+import { ParseAddressArrayPipe, ParseBoolPipe } from "@multiversx/sdk-nestjs-common";
 import { ProviderFilter } from "./entities/provider.filter";
 import { Response } from "express";
 import { ProviderQueryOptions } from "./entities/provider.query.options";
 import { QueryPagination } from "src/common/entities/query.pagination";
 import { ProviderAccounts } from "./entities/provider.accounts";
+import { ParseAddressPipe } from 'src/pipes/parse.address.pipe';
 
 @Controller()
 @ApiTags('providers')
