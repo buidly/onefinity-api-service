@@ -1,4 +1,4 @@
-import { AddressUtils, BinaryUtils } from "@multiversx/sdk-nestjs-common";
+import { BinaryUtils } from "@multiversx/sdk-nestjs-common";
 import { AbstractQuery, ElasticQuery, MatchQuery, QueryConditionOptions, QueryOperator, QueryType, RangeGreaterThanOrEqual, RangeLowerThan, RangeLowerThanOrEqual } from "@multiversx/sdk-nestjs-elastic";
 import { Injectable } from "@nestjs/common";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
@@ -17,6 +17,7 @@ import { AccountHistoryFilter } from "src/endpoints/accounts/entities/account.hi
 import { SmartContractResultFilter } from "src/endpoints/sc-results/entities/smart.contract.result.filter";
 import { ApplicationFilter } from "src/endpoints/applications/entities/application.filter";
 import { NftType } from "../entities/nft.type";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class ElasticIndexerHelper {
@@ -281,7 +282,7 @@ export class ElasticIndexerHelper {
         QueryType.Match('receivers', filter.address),
       ];
 
-      if (AddressUtils.isSmartContractAddress(filter.address)) {
+      if (AddressUtilsV13.isSmartContractAddress(filter.address)) {
         smartContractResultConditions.push(QueryType.Match('sender', filter.address));
       }
 

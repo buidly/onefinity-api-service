@@ -1,4 +1,4 @@
-import { AddressUtils, BinaryUtils, NumberUtils, StringUtils } from "@multiversx/sdk-nestjs-common";
+import { BinaryUtils, NumberUtils, StringUtils } from "@multiversx/sdk-nestjs-common";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { TokenTransferProperties } from "src/endpoints/tokens/entities/token.transfer.properties";
@@ -9,6 +9,7 @@ import { TransactionActionCategory } from "../../entities/transaction.action.cat
 import { TransactionMetadata } from "../../entities/transaction.metadata";
 import { TransactionMetadataTransfer } from "../../entities/transaction.metadata.transfer";
 import { TransactionActionRecognizerInterface } from "../../transaction.action.recognizer.interface";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class TransactionActionEsdtNftRecognizerService implements TransactionActionRecognizerInterface {
@@ -37,11 +38,11 @@ export class TransactionActionEsdtNftRecognizerService implements TransactionAct
       return undefined;
     }
 
-    if (!AddressUtils.isValidHexAddress(metadata.functionArgs[1])) {
+    if (!AddressUtilsV13.isValidHexAddress(metadata.functionArgs[1])) {
       return undefined;
     }
 
-    const address = AddressUtils.bech32Encode(metadata.functionArgs[1]);
+    const address = AddressUtilsV13.bech32Encode(metadata.functionArgs[1]);
 
     const result = new TransactionAction();
     result.category = TransactionActionCategory.esdtNft;

@@ -1,11 +1,12 @@
-import { AddressUtils, OriginLogger } from "@multiversx/sdk-nestjs-common";
-import { CacheService } from "@multiversx/sdk-nestjs-cache";
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { CacheInfo } from "../../utils/cache.info";
-import { GatewayService } from "../gateway/gateway.service";
-import { IndexerService } from "../indexer/indexer.service";
-import { ApiConfigService } from "../api-config/api.config.service";
-import { Address } from "@multiversx/sdk-core/out";
+import { OriginLogger } from '@multiversx/sdk-nestjs-common';
+import { CacheService } from '@multiversx/sdk-nestjs-cache';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { CacheInfo } from '../../utils/cache.info';
+import { GatewayService } from '../gateway/gateway.service';
+import { IndexerService } from '../indexer/indexer.service';
+import { ApiConfigService } from '../api-config/api.config.service';
+import { Address } from '@multiversx/sdk-core/out';
+import { AddressUtilsV13 } from 'src/utils/address.utils';
 
 @Injectable()
 export class ProtocolService {
@@ -19,7 +20,7 @@ export class ProtocolService {
     @Inject(forwardRef(() => IndexerService))
     private readonly indexerService: IndexerService,
     private readonly apiConfigService: ApiConfigService,
-  ) { }
+  ) {}
 
   async getShardIds(): Promise<number[]> {
     return await this.cachingService.getOrSet(
@@ -60,7 +61,7 @@ export class ProtocolService {
     const genesisTimestamp = await this.getGenesisTimestamp();
     const currentTimestamp = Math.round(Date.now() / 1000);
 
-    let result = 6 - (currentTimestamp - genesisTimestamp) % 6;
+    let result = 6 - ((currentTimestamp - genesisTimestamp) % 6);
     if (result === 6) {
       result = 0;
     }
@@ -88,13 +89,13 @@ export class ProtocolService {
   }
 
   async getShardIdForAddress(address: string): Promise<number | undefined> {
-    if (!AddressUtils.isAddressValid(address)) {
+    if (!AddressUtilsV13.isAddressValid(address)) {
       return undefined;
     }
 
     const shardCount = await this.getShardCount();
-    const addressHex = new Address(address).hex();
+    const addressHex = Address.newFromBech32(address).hex();
 
-    return AddressUtils.computeShard(addressHex, shardCount);
+    return AddressUtilsV13.computeShard(addressHex, shardCount);
   }
 }

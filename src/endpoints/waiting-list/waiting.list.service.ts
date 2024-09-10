@@ -1,4 +1,4 @@
-import { AddressUtils, NumberUtils } from "@multiversx/sdk-nestjs-common";
+import { NumberUtils } from "@multiversx/sdk-nestjs-common";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import { Injectable } from "@nestjs/common";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
@@ -6,6 +6,7 @@ import { QueryPagination } from "src/common/entities/query.pagination";
 import { CacheInfo } from "src/utils/cache.info";
 import { VmQueryService } from "../vm.query/vm.query.service";
 import { WaitingList } from "./entities/waiting.list";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class WaitingListService {
@@ -61,7 +62,7 @@ export class WaitingListService {
         const [publicKeyEncoded, valueEncoded, nonceEncoded] = array.slice(index, index + 3);
 
         const publicKey = Buffer.from(publicKeyEncoded, 'base64').toString('hex');
-        const address = AddressUtils.bech32Encode(publicKey);
+        const address = AddressUtilsV13.bech32Encode(publicKey);
         const value = NumberUtils.numberDecode(valueEncoded);
         const nonce = parseInt(NumberUtils.numberDecode(nonceEncoded));
 

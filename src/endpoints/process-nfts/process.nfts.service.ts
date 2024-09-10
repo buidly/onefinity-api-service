@@ -1,4 +1,3 @@
-import { AddressUtils } from "@multiversx/sdk-nestjs-common";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import { Injectable } from "@nestjs/common";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
@@ -12,6 +11,7 @@ import { NftService } from "../nfts/nft.service";
 import { ProcessNftRequest } from "./entities/process.nft.request";
 import { ProcessNftSettings } from "./entities/process.nft.settings";
 import { OriginLogger } from "@multiversx/sdk-nestjs-common";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class ProcessNftsService {
@@ -123,7 +123,7 @@ export class ProcessNftsService {
     let collectionOwner = nftCollection.owner;
 
     let currentDepth = 0;
-    while (AddressUtils.isSmartContractAddress(collectionOwner) && currentDepth < ProcessNftsService.MAX_DEPTH) {
+    while (AddressUtilsV13.isSmartContractAddress(collectionOwner) && currentDepth < ProcessNftsService.MAX_DEPTH) {
       const account = await this.accountService.getAccount(collectionOwner);
       if (!account) {
         throw new Error(`Could not fetch account details for address '${collectionOwner}'`);
@@ -133,7 +133,7 @@ export class ProcessNftsService {
       collectionOwner = account.ownerAddress;
     }
 
-    if (AddressUtils.isSmartContractAddress(collectionOwner)) {
+    if (AddressUtilsV13.isSmartContractAddress(collectionOwner)) {
       throw new Error(`Collection owner '${collectionOwner}' should not be smart contract`);
     }
 

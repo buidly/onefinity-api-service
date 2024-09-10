@@ -10,7 +10,7 @@ import { StakeTopup } from "./entities/stake.topup";
 import { NetworkService } from "../network/network.service";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { CacheInfo } from "src/utils/cache.info";
-import { AddressUtils, RoundUtils } from "@multiversx/sdk-nestjs-common";
+import { RoundUtils } from "@multiversx/sdk-nestjs-common";
 import { ApiUtils } from "@multiversx/sdk-nestjs-http";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import { OriginLogger } from "@multiversx/sdk-nestjs-common";
@@ -21,6 +21,7 @@ import { ValidatorInfoResult } from "./entities/validator.info.result";
 import { NodeFilter } from "../nodes/entities/node.filter";
 import { BlockService } from "../blocks/block.service";
 import { Auction } from "src/common/gateway/entities/auction";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class StakeService {
@@ -239,7 +240,7 @@ export class StakeService {
         auctionContractAddress,
         'getTotalStakedTopUpStakedBlsKeys',
         auctionContractAddress,
-        [AddressUtils.bech32Decode(address)],
+        [AddressUtilsV13.bech32Decode(address)],
       );
     } catch (error) {
       this.logger.log(`Unexpected error when trying to get stake informations from contract for address '${address}'`);
@@ -307,7 +308,7 @@ export class StakeService {
     }
 
 
-    const hexAddress = AddressUtils.bech32Decode(address);
+    const hexAddress = AddressUtilsV13.bech32Decode(address);
 
     const [totalStakedEncoded, unStakedTokensListEncoded] = await Promise.all([
       this.vmQueryService.vmQuery(

@@ -19,7 +19,7 @@ import { SortOrder } from "src/common/entities/sort.order";
 import { TokenSort } from "./entities/token.sort";
 import { TokenWithRoles } from "./entities/token.with.roles";
 import { TokenWithRolesFilter } from "./entities/token.with.roles.filter";
-import { AddressUtils, BinaryUtils, NumberUtils, TokenUtils } from "@multiversx/sdk-nestjs-common";
+import { BinaryUtils, NumberUtils, TokenUtils } from "@multiversx/sdk-nestjs-common";
 import { ApiService, ApiUtils } from "@multiversx/sdk-nestjs-http";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import { IndexerService } from "src/common/indexer/indexer.service";
@@ -42,6 +42,7 @@ import { TransferService } from "../transfers/transfer.service";
 import { MexPairService } from "../mex/mex.pair.service";
 import { MexPairState } from "../mex/entities/mex.pair.state";
 import { MexTokenType } from "../mex/entities/mex.token.type";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class TokenService {
@@ -209,7 +210,7 @@ export class TokenService {
   }
 
   async getTokenCountForAddress(address: string, filter: TokenFilter): Promise<number> {
-    if (AddressUtils.isSmartContractAddress(address)) {
+    if (AddressUtilsV13.isSmartContractAddress(address)) {
       return await this.getTokenCountForAddressFromElastic(address, filter);
     }
 
@@ -227,7 +228,7 @@ export class TokenService {
 
   async getTokensForAddress(address: string, queryPagination: QueryPagination, filter: TokenFilter): Promise<TokenWithBalance[]> {
     let tokens: TokenWithBalance[];
-    if (AddressUtils.isSmartContractAddress(address)) {
+    if (AddressUtilsV13.isSmartContractAddress(address)) {
       tokens = await this.getTokensForAddressFromElastic(address, queryPagination, filter);
     } else {
       tokens = await this.getTokensForAddressFromGatewayWithElasticFallback(address, queryPagination, filter);

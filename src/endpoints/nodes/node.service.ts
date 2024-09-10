@@ -15,7 +15,7 @@ import { CacheInfo } from "src/utils/cache.info";
 import { Stake } from "../stake/entities/stake";
 import { GatewayComponentRequest } from "src/common/gateway/entities/gateway.component.request";
 import { Auction } from "src/common/gateway/entities/auction";
-import { AddressUtils, OriginLogger } from "@multiversx/sdk-nestjs-common";
+import { OriginLogger } from "@multiversx/sdk-nestjs-common";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import { NodeSort } from "./entities/node.sort";
 import { ProtocolService } from "src/common/protocol/protocol.service";
@@ -26,6 +26,7 @@ import { NodeAuctionFilter } from "./entities/node.auction.filter";
 import { Identity } from "../identities/entities/identity";
 import { NodeSortAuction } from "./entities/node.sort.auction";
 import { ApiService } from "@multiversx/sdk-nestjs-http";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class NodeService {
@@ -507,7 +508,7 @@ export class NodeService {
 
     const [encodedOwnerBase64] = result;
 
-    return AddressUtils.bech32Encode(Buffer.from(encodedOwnerBase64, 'base64').toString('hex'));
+    return AddressUtilsV13.bech32Encode(Buffer.from(encodedOwnerBase64, 'base64').toString('hex'));
   }
 
   async getOwnerBlses(owner: string): Promise<string[]> {
@@ -523,7 +524,7 @@ export class NodeService {
         auctionContractAddress,
         'getBlsKeysStatus',
         auctionContractAddress,
-        [AddressUtils.bech32Decode(owner)],
+        [AddressUtilsV13.bech32Decode(owner)],
       );
     } catch (error) {
       this.logger.error(`An unhandled error occurred when getting BLSes for owner '${owner}'`);
@@ -576,7 +577,7 @@ export class NodeService {
         const bls = Buffer.from(blsBase64, 'base64').toString('hex');
 
         const rewardsAddressHex = Buffer.from(rewardsAddressBase64, 'base64').toString('hex');
-        const rewardsAddress = AddressUtils.bech32Encode(rewardsAddressHex);
+        const rewardsAddress = AddressUtilsV13.bech32Encode(rewardsAddressHex);
 
         const nonceHex = Buffer.from(nonceBase64, 'base64').toString('hex');
         const nonce = parseInt(BigInt(nonceHex ? '0x' + nonceHex : nonceHex).toString());

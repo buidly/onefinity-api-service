@@ -1,10 +1,10 @@
-import { AddressUtils } from "@multiversx/sdk-nestjs-common";
 import { ShardTransaction } from "@elrondnetwork/transaction-processor";
 import { Injectable } from "@nestjs/common";
 import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from 'socket.io';
 import { Transaction } from "src/endpoints/transactions/entities/transaction";
 import { TransactionActionService } from "src/endpoints/transactions/transaction-action/transaction.action.service";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 @WebSocketGateway(3099)
@@ -84,7 +84,7 @@ export class WebSocketPublisherService {
 
     const distinctAddresses = addresses.distinct();
     for (const address of distinctAddresses) {
-      if (!AddressUtils.isAddressValid(address)) {
+      if (!AddressUtilsV13.isAddressValid(address)) {
         return { addresses: [], error: `Validation failed for 'address' (a bech32 address is expected)` };
       }
     }

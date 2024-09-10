@@ -1,6 +1,5 @@
 import { CacheService } from '@multiversx/sdk-nestjs-cache';
 import {
-  AddressUtils,
   BinaryUtils,
   Constants,
 } from '@multiversx/sdk-nestjs-common';
@@ -8,6 +7,7 @@ import { Injectable } from '@nestjs/common';
 import { CacheInfo } from 'src/utils/cache.info';
 import { VmQueryService } from '../vm.query/vm.query.service';
 import { UsernameUtils } from './username.utils';
+import { AddressUtilsV13 } from 'src/utils/address.utils';
 
 @Injectable()
 export class UsernameService {
@@ -57,7 +57,7 @@ export class UsernameService {
 
       if (encodedAddress) {
         const publicKey = BinaryUtils.base64ToHex(encodedAddress);
-        return AddressUtils.bech32Encode(publicKey);
+        return AddressUtilsV13.bech32Encode(publicKey);
       }
     } catch (error) {
       return null;

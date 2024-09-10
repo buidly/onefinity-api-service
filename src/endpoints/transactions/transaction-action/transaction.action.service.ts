@@ -10,8 +10,9 @@ import { TransactionActionEsdtNftRecognizerService } from "./recognizers/esdt/tr
 import { TokenTransferService } from "src/endpoints/tokens/token.transfer.service";
 import { TransactionType } from "src/endpoints/transactions/entities/transaction.type";
 import { MetabondingActionRecognizerService } from "./recognizers/mex/mex.metabonding.action.recognizer.service";
-import { AddressUtils, BinaryUtils, StringUtils } from "@multiversx/sdk-nestjs-common";
+import { BinaryUtils, StringUtils } from "@multiversx/sdk-nestjs-common";
 import { OriginLogger } from "@multiversx/sdk-nestjs-common";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class TransactionActionService {
@@ -102,8 +103,8 @@ export class TransactionActionService {
         try {
           const relayedTransaction = JSON.parse(BinaryUtils.hexToString(metadata.functionArgs[0]));
           relayedTransaction.value = relayedTransaction.value.toString();
-          relayedTransaction.sender = AddressUtils.bech32Encode(BinaryUtils.base64ToHex(relayedTransaction.sender));
-          relayedTransaction.receiver = AddressUtils.bech32Encode(BinaryUtils.base64ToHex(relayedTransaction.receiver));
+          relayedTransaction.sender = AddressUtilsV13.bech32Encode(BinaryUtils.base64ToHex(relayedTransaction.sender));
+          relayedTransaction.receiver = AddressUtilsV13.bech32Encode(BinaryUtils.base64ToHex(relayedTransaction.receiver));
           return this.getNormalTransactionMetadata(relayedTransaction);
         } catch (error) {
           this.logger.error(`Unhandled error when interpreting relayed transaction with hash '${transaction.txHash}'`);
@@ -115,7 +116,7 @@ export class TransactionActionService {
         try {
           const relayedTransaction = new Transaction();
           relayedTransaction.sender = transaction.receiver;
-          relayedTransaction.receiver = AddressUtils.bech32Encode(metadata.functionArgs[0]);
+          relayedTransaction.receiver = AddressUtilsV13.bech32Encode(metadata.functionArgs[0]);
           relayedTransaction.data = BinaryUtils.base64Encode(BinaryUtils.hexToString(metadata.functionArgs[2]));
           relayedTransaction.value = '0';
 
@@ -136,7 +137,7 @@ export class TransactionActionService {
           // then we insert the address as the first parameter. otherwise we assume that the address
           // is the first parameter, which will be correctly interpreted by the recognizers
           if (metadata.functionArgs[0].length <= 4) {
-            metadata.functionArgs.splice(0, 0, AddressUtils.bech32Decode(metadata.receiver));
+            metadata.functionArgs.splice(0, 0, AddressUtilsV13.bech32Decode(metadata.receiver));
           }
 
           metadata.receiver = metadata.sender;
@@ -145,7 +146,7 @@ export class TransactionActionService {
         if (metadata.functionName === 'ESDTNFTTransfer' &&
           metadata.functionArgs.length > 3
         ) {
-          metadata.functionArgs[3] = AddressUtils.bech32Decode(metadata.receiver);
+          metadata.functionArgs[3] = AddressUtilsV13.bech32Decode(metadata.receiver);
           metadata.receiver = metadata.sender;
         }
       }
@@ -183,11 +184,11 @@ export class TransactionActionService {
       return undefined;
     }
 
-    if (!AddressUtils.isValidHexAddress(args[0])) {
+    if (!AddressUtilsV13.isValidHexAddress(args[0])) {
       return undefined;
     }
 
-    const receiver = AddressUtils.bech32Encode(args[0]);
+    const receiver = AddressUtilsV13.bech32Encode(args[0]);
     const transferCount = BinaryUtils.hexToNumber(args[1]);
 
     const result = new TransactionMetadata();
@@ -260,14 +261,14 @@ export class TransactionActionService {
       return undefined;
     }
 
-    if (!AddressUtils.isValidHexAddress(args[3])) {
+    if (!AddressUtilsV13.isValidHexAddress(args[3])) {
       return undefined;
     }
 
     const collectionIdentifier = BinaryUtils.hexToString(args[0]);
     const nonce = args[1];
     const value = BinaryUtils.hexToBigInt(args[2]);
-    const receiver = AddressUtils.bech32Encode(args[3]);
+    const receiver = AddressUtilsV13.bech32Encode(args[3]);
 
     const properties = await this.tokenTransferService.getTokenTransferProperties({ identifier: collectionIdentifier, nonce });
     if (!properties) {

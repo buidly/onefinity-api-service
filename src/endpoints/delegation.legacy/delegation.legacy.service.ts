@@ -3,9 +3,9 @@ import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { VmQueryService } from "src/endpoints/vm.query/vm.query.service";
 import { DelegationLegacy } from "./entities/delegation.legacy";
 import { AccountDelegationLegacy } from "./entities/account.delegation.legacy";
-import { AddressUtils } from "@multiversx/sdk-nestjs-common";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import { CacheInfo } from "src/utils/cache.info";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class DelegationLegacyService {
@@ -66,7 +66,7 @@ export class DelegationLegacyService {
       return new AccountDelegationLegacy();
     }
 
-    const publicKey = AddressUtils.bech32Decode(address);
+    const publicKey = AddressUtilsV13.bech32Decode(address);
 
     const [userStakeByTypeEncoded, claimableRewardsEncoded] = await Promise.all([
       this.vmQueryService.vmQuery(

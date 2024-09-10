@@ -9,13 +9,14 @@ import { TokenRoles } from "../tokens/entities/token.roles";
 import { AssetsService } from "../../common/assets/assets.service";
 import { EsdtLockedAccount } from "./entities/esdt.locked.account";
 import { EsdtSupply } from "./entities/esdt.supply";
-import { BinaryUtils, Constants, AddressUtils, OriginLogger, BatchUtils } from "@multiversx/sdk-nestjs-common";
+import { BinaryUtils, Constants, OriginLogger, BatchUtils } from "@multiversx/sdk-nestjs-common";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import { IndexerService } from "src/common/indexer/indexer.service";
 import { EsdtType } from "./entities/esdt.type";
 import { ElasticIndexerService } from "src/common/indexer/elastic/elastic.indexer.service";
 import { randomUUID } from "crypto";
 import { EsdtSubType } from "./entities/esdt.sub.type";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class EsdtService {
@@ -145,7 +146,7 @@ export class EsdtService {
       name,
       // @ts-ignore
       type,
-      owner: AddressUtils.bech32Encode(owner),
+      owner: AddressUtilsV13.bech32Encode(owner),
       decimals: parseInt(decimals.split('-').pop() ?? '0'),
       isPaused: TokenHelpers.canBool(isPaused),
       canUpgrade: TokenHelpers.canBool(canUpgrade),

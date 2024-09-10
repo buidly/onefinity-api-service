@@ -1,9 +1,9 @@
-import { AddressUtils } from "@multiversx/sdk-nestjs-common";
 import { Injectable } from "@nestjs/common";
 import { TransactionAction } from "../../entities/transaction.action";
 import { TransactionActionCategory } from "../../entities/transaction.action.category";
 import { TransactionMetadata } from "../../entities/transaction.metadata";
 import { TransactionActionRecognizerInterface } from "../../transaction.action.recognizer.interface";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class SCCallActionRecognizerService implements TransactionActionRecognizerInterface {
@@ -54,7 +54,7 @@ export class SCCallActionRecognizerService implements TransactionActionRecognize
   }
 
   private isSmartContractCall(metadata: TransactionMetadata): boolean {
-    return AddressUtils.isSmartContractAddress(metadata.receiver) || this.isSelfBuiltInFunctionCall(metadata);
+    return AddressUtilsV13.isSmartContractAddress(metadata.receiver) || this.isSelfBuiltInFunctionCall(metadata);
   }
 
   private isSelfBuiltInFunctionCall(metadata: TransactionMetadata): boolean {

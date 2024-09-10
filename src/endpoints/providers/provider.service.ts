@@ -8,7 +8,7 @@ import { DelegationData } from "./entities/delegation.data";
 import { CacheInfo } from "src/utils/cache.info";
 import { ProviderFilter } from "./entities/provider.filter";
 import { Provider } from "./entities/provider";
-import { AddressUtils, BinaryUtils, Constants } from "@multiversx/sdk-nestjs-common";
+import { BinaryUtils, Constants } from "@multiversx/sdk-nestjs-common";
 import { ApiService, ApiUtils } from "@multiversx/sdk-nestjs-http";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import { OriginLogger } from "@multiversx/sdk-nestjs-common";
@@ -17,6 +17,7 @@ import { ProviderQueryOptions } from "./entities/provider.query.options";
 import { QueryPagination } from "src/common/entities/query.pagination";
 import { ElasticIndexerService } from "src/common/indexer/elastic/elastic.indexer.service";
 import { ProviderAccounts } from "./entities/provider.accounts";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class ProviderService {
@@ -347,7 +348,7 @@ export class ProviderService {
     }
 
     const value = providersBase64.map((providerBase64) =>
-      AddressUtils.bech32Encode(Buffer.from(providerBase64, 'base64').toString('hex'))
+      AddressUtilsV13.bech32Encode(Buffer.from(providerBase64, 'base64').toString('hex'))
     );
 
     return value;
@@ -376,7 +377,7 @@ export class ProviderService {
       const automaticActivationBase64 = response[automaticActivationIndex];
       const checkCapOnRedelegateBase64 = response[redelegationCapIndex];
 
-      const owner = AddressUtils.bech32Encode(Buffer.from(ownerAddress, 'base64').toString('hex'));
+      const owner = AddressUtilsV13.bech32Encode(Buffer.from(ownerAddress, 'base64').toString('hex'));
 
       const [serviceFee, delegationCap] = [
         serviceFeeBase64,

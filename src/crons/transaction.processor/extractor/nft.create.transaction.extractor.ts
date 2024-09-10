@@ -1,8 +1,9 @@
-import { AddressUtils, BinaryUtils, OriginLogger } from "@multiversx/sdk-nestjs-common";
+import { BinaryUtils, OriginLogger } from "@multiversx/sdk-nestjs-common";
 import { ShardTransaction } from "@elrondnetwork/transaction-processor";
 import { Logger } from "@nestjs/common";
 import { TransactionDetailed } from "src/endpoints/transactions/entities/transaction.detailed";
 import { TransactionExtractorInterface } from "./transaction.extractor.interface";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 export class NftCreateTransactionExtractor implements TransactionExtractorInterface<{ collection: string }> {
   private readonly logger = new OriginLogger(NftCreateTransactionExtractor.name);
@@ -12,7 +13,7 @@ export class NftCreateTransactionExtractor implements TransactionExtractorInterf
       return false;
     }
 
-    if (!AddressUtils.isSmartContractAddress(transaction.receiver)) {
+    if (!AddressUtilsV13.isSmartContractAddress(transaction.receiver)) {
       return false;
     }
 

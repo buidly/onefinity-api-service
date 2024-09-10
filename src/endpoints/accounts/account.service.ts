@@ -18,7 +18,7 @@ import { TransactionType } from '../transactions/entities/transaction.type';
 import { AssetsService } from 'src/common/assets/assets.service';
 import { TransactionFilter } from '../transactions/entities/transaction.filter';
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
-import { AddressUtils, BinaryUtils, OriginLogger } from '@multiversx/sdk-nestjs-common';
+import { BinaryUtils, OriginLogger } from '@multiversx/sdk-nestjs-common';
 import { ApiService, ApiUtils } from "@multiversx/sdk-nestjs-http";
 import { GatewayService } from 'src/common/gateway/gateway.service';
 import { IndexerService } from "src/common/indexer/indexer.service";
@@ -37,6 +37,7 @@ import { NodeStatusRaw } from '../nodes/entities/node.status';
 import { AccountKeyFilter } from './entities/account.key.filter';
 import { Provider } from '../providers/entities/provider';
 import { ApplicationMostUsed } from './entities/application.most.used';
+import { AddressUtilsV13 } from 'src/utils/address.utils';
 
 @Injectable()
 export class AccountService {
@@ -80,7 +81,7 @@ export class AccountService {
   }
 
   async getAccount(address: string, fields?: string[], withGuardianInfo?: boolean): Promise<AccountDetailed | null> {
-    if (!AddressUtils.isAddressValid(address)) {
+    if (!AddressUtilsV13.isAddressValid(address)) {
       return null;
     }
 
@@ -145,7 +146,7 @@ export class AccountService {
   }
 
   async getAccountVerification(address: string): Promise<AccountVerification | null> {
-    if (!AddressUtils.isAddressValid(address)) {
+    if (!AddressUtilsV13.isAddressValid(address)) {
       return null;
     }
 
@@ -159,7 +160,7 @@ export class AccountService {
   }
 
   async getAccountSimple(address: string): Promise<AccountDetailed | null> {
-    if (!AddressUtils.isAddressValid(address)) {
+    if (!AddressUtilsV13.isAddressValid(address)) {
       return null;
     }
 
@@ -174,15 +175,15 @@ export class AccountService {
       } = await this.gatewayService.getAddressDetails(address);
 
       const shardCount = await this.protocolService.getShardCount();
-      const shard = AddressUtils.computeShard(AddressUtils.bech32Decode(address), shardCount);
+      const shard = AddressUtilsV13.computeShard(AddressUtilsV13.bech32Decode(address), shardCount);
       let account = new AccountDetailed({ address, nonce, balance, code, codeHash, rootHash, txCount, scrCount, shard, developerReward, ownerAddress, scamInfo: undefined, assets: assets[address], ownerAssets: assets[ownerAddress], nftCollections: undefined, nfts: undefined });
 
-      const codeAttributes = AddressUtils.decodeCodeMetadata(codeMetadata);
+      const codeAttributes = AddressUtilsV13.decodeCodeMetadata(codeMetadata);
       if (codeAttributes) {
         account = { ...account, ...codeAttributes };
       }
 
-      if (AddressUtils.isSmartContractAddress(address) && account.code) {
+      if (AddressUtilsV13.isSmartContractAddress(address) && account.code) {
         const deployTxHash = await this.getAccountDeployedTxHash(address);
         if (deployTxHash) {
           account.deployTxHash = deployTxHash;
@@ -199,7 +200,7 @@ export class AccountService {
         }
       }
 
-      if (!AddressUtils.isSmartContractAddress(address)) {
+      if (!AddressUtilsV13.isSmartContractAddress(address)) {
         account.username = await this.usernameService.getUsernameForAddress(address) ?? undefined;
         account.isPayableBySmartContract = undefined;
         account.isUpgradeable = undefined;
@@ -319,7 +320,7 @@ export class AccountService {
     const shardCount = await this.protocolService.getShardCount();
 
     for (const account of accounts) {
-      account.shard = AddressUtils.computeShard(AddressUtils.bech32Decode(account.address), shardCount);
+      account.shard = AddressUtilsV13.computeShard(AddressUtilsV13.bech32Decode(account.address), shardCount);
       account.assets = assets[account.address];
     }
 
@@ -342,10 +343,10 @@ export class AccountService {
     const verifiedAccounts = await this.cachingService.get<string[]>(CacheInfo.VerifiedAccounts.key);
 
     for (const account of accounts) {
-      account.shard = AddressUtils.computeShard(AddressUtils.bech32Decode(account.address), shardCount);
+      account.shard = AddressUtilsV13.computeShard(AddressUtilsV13.bech32Decode(account.address), shardCount);
       account.assets = assets[account.address];
 
-      if (options.withDeployInfo && AddressUtils.isSmartContractAddress(account.address)) {
+      if (options.withDeployInfo && AddressUtilsV13.isSmartContractAddress(account.address)) {
         const [deployedAt, deployTxHash] = await Promise.all([
           this.getAccountDeployedAt(account.address),
           this.getAccountDeployedTxHash(account.address),
@@ -378,13 +379,13 @@ export class AccountService {
   }
 
   async getDeferredAccount(address: string): Promise<AccountDeferred[]> {
-    const publicKey = AddressUtils.bech32Decode(address);
+    const publicKey = AddressUtilsV13.bech32Decode(address);
     const delegationContractAddress = this.apiConfigService.getDelegationContractAddress();
     if (!delegationContractAddress) {
       return [];
     }
 
-    const delegationContractShardId = AddressUtils.computeShard(AddressUtils.bech32Decode(delegationContractAddress), await this.protocolService.getShardCount());
+    const delegationContractShardId = AddressUtilsV13.computeShard(AddressUtilsV13.bech32Decode(delegationContractAddress), await this.protocolService.getShardCount());
 
     const [
       encodedUserDeferredPaymentList,
@@ -455,7 +456,7 @@ export class AccountService {
     );
 
     const rewardsPublicKey = Buffer.from(encodedRewardsPublicKey, 'base64').toString();
-    return AddressUtils.bech32Encode(rewardsPublicKey);
+    return AddressUtilsV13.bech32Encode(rewardsPublicKey);
   }
 
   private async getAllNodeStates(address: string) {
@@ -467,7 +468,7 @@ export class AccountService {
 
   async getKeys(address: string, filter: AccountKeyFilter, pagination: QueryPagination): Promise<AccountKey[]> {
     const { from, size } = pagination;
-    const publicKey = AddressUtils.bech32Decode(address);
+    const publicKey = AddressUtilsV13.bech32Decode(address);
     const isStakingProvider = await this.providerService.isProvider(address);
 
     let notStakedNodes: AccountKey[] = [];

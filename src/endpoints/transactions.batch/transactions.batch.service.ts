@@ -39,15 +39,15 @@ export class TransactionsBatchService {
         const trans = new ErdJsTransaction({
           nonce: tx.nonce,
           value: tx.value,
-          receiver: new Address(tx.receiver),
+          receiver: Address.newFromBech32(tx.receiver),
           gasPrice: tx.gasPrice,
           gasLimit: tx.gasLimit,
           data: tx.data ? new TransactionPayload(BinaryUtils.base64Decode(tx.data ?? '')) : undefined,
           chainID: tx.chainID,
           version: new TransactionVersion(tx.version),
           options: tx.options ? new TransactionOptions(tx.options) : undefined,
-          guardian: tx.guardian ? new Address(tx.guardian) : undefined,
-          sender: new Address(tx.sender),
+          guardian: tx.guardian ? Address.newFromBech32(tx.guardian) : undefined,
+          sender: Address.newFromBech32(tx.sender),
         });
 
         if (tx.guardianSignature) {

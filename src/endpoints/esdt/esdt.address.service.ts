@@ -16,7 +16,7 @@ import { NftCollectionWithRoles } from "../collections/entities/nft.collection.w
 import { CollectionService } from "../collections/collection.service";
 import { CollectionFilter } from "../collections/entities/collection.filter";
 import { CollectionRoles } from "../tokens/entities/collection.roles";
-import { AddressUtils, BinaryUtils, OriginLogger } from '@multiversx/sdk-nestjs-common';
+import { BinaryUtils, OriginLogger } from '@multiversx/sdk-nestjs-common';
 import { ApiUtils } from "@multiversx/sdk-nestjs-http";
 import { MetricsService } from "@multiversx/sdk-nestjs-monitoring";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
@@ -24,6 +24,7 @@ import { IndexerService } from "src/common/indexer/indexer.service";
 import { TrieOperationsTimeoutError } from "./exceptions/trie.operations.timeout.error";
 import { CacheInfo } from "src/utils/cache.info";
 import { AssetsService } from "src/common/assets/assets.service";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class EsdtAddressService {
@@ -51,7 +52,7 @@ export class EsdtAddressService {
       return await this.getNftsForAddressFromGatewayWithElasticFallback(address, filter, pagination);
     }
 
-    if (source === EsdtDataSource.elastic || AddressUtils.isSmartContractAddress(address)) {
+    if (source === EsdtDataSource.elastic || AddressUtilsV13.isSmartContractAddress(address)) {
       return await this.getNftsForAddressFromElastic(address, filter, pagination);
     }
 

@@ -7,8 +7,9 @@ import fs from 'fs';
 import { readdir } from 'fs/promises';
 import { AssetsService } from "../assets/assets.service";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
-import { AddressUtils, OriginLogger } from "@multiversx/sdk-nestjs-common";
+import { OriginLogger } from "@multiversx/sdk-nestjs-common";
 import { ApiConfigService } from "../api-config/api.config.service";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class KeybaseService {
@@ -68,7 +69,7 @@ export class KeybaseService {
     }
 
     for (const key of keys) {
-      if (AddressUtils.isAddressValid(key)) {
+      if (AddressUtilsV13.isAddressValid(key)) {
         if (providerAddresses.includes(key)) {
           await this.cachingService.set(CacheInfo.ConfirmedProvider(key).key, identity, CacheInfo.ConfirmedProvider(key).ttl);
         }
@@ -88,7 +89,7 @@ export class KeybaseService {
       }
 
       // key is not a staking provider address
-      if (AddressUtils.isAddressValid(key) && !providerAddresses.includes(key)) {
+      if (AddressUtilsV13.isAddressValid(key) && !providerAddresses.includes(key)) {
         const blses = await this.nodeService.getOwnerBlses(key);
         for (const bls of blses) {
           confirmations[bls] = identity;

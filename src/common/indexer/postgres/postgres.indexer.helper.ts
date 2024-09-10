@@ -1,4 +1,3 @@
-import { AddressUtils } from "@multiversx/sdk-nestjs-common";
 import { QueryConditionOptions } from "@multiversx/sdk-nestjs-elastic";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -15,6 +14,7 @@ import { TransactionType } from "src/endpoints/transactions/entities/transaction
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { TokenType } from "../entities";
 import { AccountHistoryDb, AccountsEsdtDb, BlockDb, RoundInfoDb, ScResultDb, ScResultOperationDb, TokenInfoDb, TransactionDb, TransactionOperationDb } from "./entities";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class PostgresIndexerHelper {
@@ -213,7 +213,7 @@ export class PostgresIndexerHelper {
     let query = this.operationsRepository.createQueryBuilder();
 
     if (filter.address) {
-      const smartContractResultCondition = AddressUtils.isSmartContractAddress(filter.address)
+      const smartContractResultCondition = AddressUtilsV13.isSmartContractAddress(filter.address)
         ? '(receiver = :receiver OR receivers like :receivers)'
         : '(sender = :sender OR receiver = :receiver OR receivers like :receivers)';  // receivers: `%${filter.receiver}%`,
 

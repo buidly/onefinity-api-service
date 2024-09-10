@@ -18,7 +18,7 @@ import { GatewayComponentRequest } from 'src/common/gateway/entities/gateway.com
 import { TransactionActionService } from './transaction-action/transaction.action.service';
 import { TransactionDecodeDto } from './entities/dtos/transaction.decode.dto';
 import { TransactionStatus } from './entities/transaction.status';
-import { AddressUtils, BinaryUtils, Constants, PendingExecuter } from '@multiversx/sdk-nestjs-common';
+import { BinaryUtils, Constants, PendingExecuter } from '@multiversx/sdk-nestjs-common';
 import { ApiUtils } from "@multiversx/sdk-nestjs-http";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import { TransactionUtils } from './transaction.utils';
@@ -33,6 +33,7 @@ import { UsernameService } from '../usernames/username.service';
 import { MiniBlock } from 'src/common/indexer/entities/miniblock';
 import { Block } from 'src/common/indexer/entities/block';
 import { ProtocolService } from 'src/common/protocol/protocol.service';
+import { AddressUtilsV13 } from 'src/utils/address.utils';
 
 @Injectable()
 export class TransactionService {
@@ -122,7 +123,7 @@ export class TransactionService {
       }
     }
 
-    return allAddresses.distinct().filter(x => !AddressUtils.isSmartContractAddress(x));
+    return allAddresses.distinct().filter(x => !AddressUtilsV13.isSmartContractAddress(x));
   }
 
   private async getUsernameAssetsForAddresses(addresses: string[]): Promise<Record<string, AccountAssets>> {
@@ -287,8 +288,8 @@ export class TransactionService {
 
   async createTransaction(transaction: TransactionCreate): Promise<TransactionSendResult | string> {
     const shardCount = await this.protocolService.getShardCount();
-    const receiverShard = AddressUtils.computeShard(AddressUtils.bech32Decode(transaction.receiver), shardCount);
-    const senderShard = AddressUtils.computeShard(AddressUtils.bech32Decode(transaction.sender), shardCount);
+    const receiverShard = AddressUtilsV13.computeShard(AddressUtilsV13.bech32Decode(transaction.receiver), shardCount);
+    const senderShard = AddressUtilsV13.computeShard(AddressUtilsV13.bech32Decode(transaction.sender), shardCount);
 
     const pluginTransaction = await this.pluginsService.processTransactionSend(transaction);
     if (pluginTransaction) {
