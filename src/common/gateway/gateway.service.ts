@@ -20,7 +20,9 @@ import { ApiService, ApiSettings } from "@multiversx/sdk-nestjs-http";
 import { GuardianResult } from "./entities/guardian.result";
 import { TransactionProcessStatus } from "./entities/transaction.process.status";
 import { TxPoolGatewayResponse } from "./entities/tx.pool.gateway.response";
+import { AddressUtilsV13 } from "src/utils/address.utils";
 
+const ETHAliasAddress = '0002';
 @Injectable()
 export class GatewayService {
   private readonly snapshotlessRequestsSet: Set<String> = new Set([
@@ -253,6 +255,46 @@ export class GatewayService {
           deepHistoryBlockInfo: blockInfo,
         });
       }
+    }
+  }
+
+  async getAliasAddress(address: string): Promise<string | null> {
+    try {
+      const result = await this.create('address/alias-address', GatewayComponentRequest.aliasAddress, {
+        mvxAddress: address,
+        requestedIdentifier: ETHAliasAddress,
+      });
+
+      return result;
+    } catch (error: any) {
+      return null;
+    }
+  }
+
+  async getMvxAddress(address: string): Promise<string | null> {
+    try {
+      const result = await this.create('address/mvx-address', GatewayComponentRequest.mvxAddress, {
+        aliasAddress: address,
+        requestedIdentifier: ETHAliasAddress,
+      });
+
+      return result;
+    } catch (error: any) {
+      return null;
+    }
+  }
+
+  async getAliasAddresses(address: string): Promise<[string | null, string | null]> {
+    try {
+      if (AddressUtilsV13.isAddressValid(address)) {
+        const evmAddress = await this.getAliasAddress(address);
+        return [address, evmAddress];
+      }
+
+      const mvxAddress = await this.getMvxAddress(address);
+      return [mvxAddress, address];
+    } catch (error: any) {
+      return [null, null];
     }
   }
 }

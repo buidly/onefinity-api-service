@@ -13,6 +13,10 @@ export class Account {
   @ApiProperty({ type: String, description: 'Account bech32 address', example: 'erd1qga7ze0l03chfgru0a32wxqf2226nzrxnyhzer9lmudqhjgy7ycqjjyknz' })
   address: string = '';
 
+  @Field(() => ID, { description: 'EVM Address for the given account.' })
+  @ApiProperty({ type: String, description: 'EVM Account address', example: '0xc057f4ab7412cec267a10bd601acff3e84d1c5ad' })
+  evmAddress: string = '';
+
   @Field(() => String, { description: 'Balance for the given account.' })
   @ApiProperty(SwaggerUtils.amountPropertyOptions({ description: 'Account current balance' }))
   balance: string = '';
