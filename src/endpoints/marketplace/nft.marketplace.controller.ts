@@ -9,6 +9,7 @@ import { Auctions } from "./entities/auctions";
 import { CollectionAuctionStats } from "./entities/collection.auction.stats";
 import { NftMarketplaceService } from "./nft.marketplace.service";
 import { ParseAddressPipe } from 'src/pipes/parse.address.pipe';
+import { AliasAddressInfo } from "../accounts/entities/alias-address-info";
 
 @Controller()
 @ApiTags('marketplace')
@@ -64,7 +65,7 @@ export class NftMarketplaceController {
   @ApiOperation({ summary: 'Account stats', description: 'Returns account status details from nft marketplace for a given address' })
   @ApiOkResponse({ type: AccountAuctionStats })
   async getAccountStats(
-    @Param('address', ParseAddressPipe) address: string,
+    @Param('address', ParseAddressPipe) { address }: AliasAddressInfo,
   ): Promise<AccountAuctionStats> {
     const account = await this.nftMarketplaceService.getAccountStats(address);
     if (!account) {
@@ -81,7 +82,7 @@ export class NftMarketplaceController {
   @ApiQuery({ name: 'status', description: 'Returns auctions with specified status', required: false })
   @ApiOkResponse({ type: Auction })
   async getAccountAuctions(
-    @Param('address', ParseAddressPipe) address: string,
+    @Param('address', ParseAddressPipe) { address }: AliasAddressInfo,
     @Query('from', new DefaultValuePipe(0), ParseIntPipe) from: number,
     @Query('size', new DefaultValuePipe(25), ParseIntPipe) size: number,
     @Query('status', new ParseEnumPipe(AuctionStatus)) status?: AuctionStatus,
@@ -99,7 +100,7 @@ export class NftMarketplaceController {
   @ApiOkResponse({ type: Number })
   @ApiQuery({ name: 'address', description: 'Account address', required: true })
   async getAccountAuctionsCount(
-    @Param('address', ParseAddressPipe) address: string,
+    @Param('address', ParseAddressPipe) { address }: AliasAddressInfo,
   ): Promise<number> {
     return await this.nftMarketplaceService.getAccountAuctionsCount(address);
   }

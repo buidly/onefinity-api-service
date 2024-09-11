@@ -1,8 +1,10 @@
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
+import { OriginLogger } from "@multiversx/sdk-nestjs-common";
 import { Injectable } from "@nestjs/common";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
-import { CacheInfo } from "src/utils/cache.info";
 import { NftWorkerService } from "src/queue.worker/nft.worker/nft.worker.service";
+import { AddressUtilsV13 } from "src/utils/address.utils";
+import { CacheInfo } from "src/utils/cache.info";
 import asyncPool from "tiny-async-pool";
 import { AccountService } from "../accounts/account.service";
 import { CollectionService } from "../collections/collection.service";
@@ -10,8 +12,6 @@ import { Nft } from "../nfts/entities/nft";
 import { NftService } from "../nfts/nft.service";
 import { ProcessNftRequest } from "./entities/process.nft.request";
 import { ProcessNftSettings } from "./entities/process.nft.settings";
-import { OriginLogger } from "@multiversx/sdk-nestjs-common";
-import { AddressUtilsV13 } from "src/utils/address.utils";
 
 @Injectable()
 export class ProcessNftsService {
@@ -37,7 +37,7 @@ export class ProcessNftsService {
     } else if (processNftRequest.identifier) {
       const processed = await this.processNft(processNftRequest.identifier, settings);
 
-      const result: { [key: string]: boolean } = {};
+      const result: { [key: string]: boolean; } = {};
       result[processNftRequest.identifier] = processed;
 
       return result;
@@ -69,7 +69,7 @@ export class ProcessNftsService {
     return result;
   }
 
-  public async processCollection(collection: string, settings: ProcessNftSettings): Promise<{ [key: string]: boolean }> {
+  public async processCollection(collection: string, settings: ProcessNftSettings): Promise<{ [key: string]: boolean; }> {
     const nfts = await this.nftService.getNfts({ from: 0, size: 10000 }, { collection });
 
     const results = await asyncPool(
@@ -78,7 +78,7 @@ export class ProcessNftsService {
       async (nft: Nft) => await this.nftWorkerService.addProcessNftQueueJob(nft, settings)
     );
 
-    const result: { [key: string]: boolean } = {};
+    const result: { [key: string]: boolean; } = {};
     for (const [index, nft] of nfts.entries()) {
       result[nft.identifier] = results[index];
     }
@@ -124,7 +124,7 @@ export class ProcessNftsService {
 
     let currentDepth = 0;
     while (AddressUtilsV13.isSmartContractAddress(collectionOwner) && currentDepth < ProcessNftsService.MAX_DEPTH) {
-      const account = await this.accountService.getAccount(collectionOwner);
+      const account = await this.accountService.getAccount({ address: collectionOwner, evmAddress: null });
       if (!account) {
         throw new Error(`Could not fetch account details for address '${collectionOwner}'`);
       }

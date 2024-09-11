@@ -3,6 +3,7 @@ import { TransactionBatchSimplified } from "./entities/transaction.batch.simplif
 import { TransactionBatchSimplifiedResult } from "./entities/transaction.batch.simplified.result";
 import { TransactionsBatchService } from "./transactions.batch.service";
 import { ParseAddressPipe } from 'src/pipes/parse.address.pipe';
+import { AliasAddressInfo } from "../accounts/entities/alias-address-info";
 
 @Controller()
 export class TransactionsBatchController {
@@ -44,7 +45,7 @@ export class TransactionsBatchController {
 
   @Get('/batch/:address/:id')
   async getTransactionBatch(
-    @Param('address', ParseAddressPipe) address: string,
+    @Param('address', ParseAddressPipe) { address }: AliasAddressInfo,
     @Param('id') batchId: string,
   ): Promise<TransactionBatchSimplifiedResult> {
     const batch = await this.transactionsBatchService.getTransactionBatch(address, batchId);
@@ -57,7 +58,7 @@ export class TransactionsBatchController {
 
   @Get('/batch/:address')
   async getTransactionBatches(
-    @Param('address', ParseAddressPipe) address: string,
+    @Param('address', ParseAddressPipe) { address }: AliasAddressInfo,
   ): Promise<TransactionBatchSimplifiedResult[]> {
     const batches = await this.transactionsBatchService.getTransactionBatches(address);
 

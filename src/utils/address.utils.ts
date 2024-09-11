@@ -1,6 +1,7 @@
 import { Address } from '@multiversx/sdk-core/out';
 import { BinaryUtils } from '@multiversx/sdk-nestjs-common';
 import { Logger } from '@nestjs/common';
+import { isAddress } from 'web3-validator';
 
 const EVM_VM_TYPE = '0600';
 
@@ -30,6 +31,10 @@ export class AddressUtilsV13 {
     } catch (error) {
       return false;
     }
+  }
+
+  static isEvmAddress(address: string): boolean {
+    return isAddress(address);
   }
 
   static isSmartContractAddress(address: string) {
@@ -98,7 +103,7 @@ export class AddressUtilsV13 {
     return false;
   }
 
-  static decodeCodeMetadata(codeMetadata: string): { isUpgradeable: boolean, isReadable: boolean, isGuarded: boolean, isPayable: boolean, isPayableBySmartContract: boolean } | undefined {
+  static decodeCodeMetadata(codeMetadata: string): { isUpgradeable: boolean, isReadable: boolean, isGuarded: boolean, isPayable: boolean, isPayableBySmartContract: boolean; } | undefined {
     if (!codeMetadata) {
       return undefined;
     }

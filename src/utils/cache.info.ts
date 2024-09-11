@@ -688,4 +688,18 @@ export class CacheInfo {
       ttl: Constants.oneMinute() * 10,
     };
   }
+
+  static AliasAddress(mvxAddress: string): CacheInfo {
+    return {
+      key: `aliasAddress:${mvxAddress}`,
+      ttl: Constants.oneMonth(),
+    };
+  }
+
+  static MvxAddress(aliasAddress: string): CacheInfo {
+    return {
+      key: `mvxAddress:${aliasAddress}`,
+      ttl: Constants.oneMonth(),
+    };
+  }
 }

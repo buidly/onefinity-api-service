@@ -1,4 +1,4 @@
-import { ParseAddressAndMetachainPipe, ParseEnumPipe, ParseIntPipe, ParseTransactionHashPipe } from "@multiversx/sdk-nestjs-common";
+import { ParseAddressAndMetachainPipe, ParseEnumPipe, ParseIntPipe } from "@multiversx/sdk-nestjs-common";
 import { Controller, DefaultValuePipe, Get, NotFoundException, Param, Query } from "@nestjs/common";
 import { ApiExcludeEndpoint, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { PoolService } from "./pool.service";
@@ -7,6 +7,7 @@ import { TransactionInPool } from "./entities/transaction.in.pool.dto";
 import { TransactionType } from "../transactions/entities/transaction.type";
 import { PoolFilter } from "./entities/pool.filter";
 import { ParseAddressPipe } from 'src/pipes/parse.address.pipe';
+import { ParseTransactionHashPipe } from "src/pipes/parse.transaction.pipe";
 
 @Controller()
 @ApiTags('pool')

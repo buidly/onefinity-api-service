@@ -9,6 +9,7 @@ import { ProviderQueryOptions } from "./entities/provider.query.options";
 import { QueryPagination } from "src/common/entities/query.pagination";
 import { ProviderAccounts } from "./entities/provider.accounts";
 import { ParseAddressPipe } from 'src/pipes/parse.address.pipe';
+import { AliasAddressInfo } from "../accounts/entities/alias-address-info";
 
 @Controller()
 @ApiTags('providers')
@@ -43,7 +44,7 @@ export class ProviderController {
   @ApiQuery({ name: 'from', description: 'Number of items to skip for the result set', required: false })
   @ApiQuery({ name: 'size', description: 'Number of items to retrieve', required: false })
   async getProviderAccounts(
-    @Param('address', ParseAddressPipe) address: string,
+    @Param('address', ParseAddressPipe) { address }: AliasAddressInfo,
     @Query('from', new DefaultValuePipe(0), ParseIntPipe) from: number,
     @Query('size', new DefaultValuePipe(25), ParseIntPipe) size: number,): Promise<ProviderAccounts[]> {
     const provider = await this.providerService.getProviderAccounts(address, new QueryPagination({ from, size }));
@@ -59,7 +60,7 @@ export class ProviderController {
   @ApiOperation({ summary: 'Provider', description: 'Returns provider total number of delegators' })
   @ApiOkResponse({ type: Provider })
   @ApiNotFoundResponse({ description: 'Provider not found' })
-  async getProviderAccountsCount(@Param('address', ParseAddressPipe) address: string): Promise<number> {
+  async getProviderAccountsCount(@Param('address', ParseAddressPipe) { address }: AliasAddressInfo,): Promise<number> {
     const provider = await this.providerService.getProviderAccountsCount(address);
     if (provider === undefined) {
       throw new HttpException(`Provider '${address}' not found`, HttpStatus.NOT_FOUND);
@@ -72,7 +73,7 @@ export class ProviderController {
   @ApiOperation({ summary: 'Provider', description: 'Returns provider details for a given address' })
   @ApiOkResponse({ type: Provider })
   @ApiNotFoundResponse({ description: 'Provider not found' })
-  async getProvider(@Param('address', ParseAddressPipe) address: string): Promise<Provider> {
+  async getProvider(@Param('address', ParseAddressPipe) { address }: AliasAddressInfo,): Promise<Provider> {
     const provider = await this.providerService.getProvider(address);
     if (provider === undefined) {
       throw new HttpException(`Provider '${address}' not found`, HttpStatus.NOT_FOUND);

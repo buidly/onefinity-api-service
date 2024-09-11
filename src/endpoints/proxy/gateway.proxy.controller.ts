@@ -6,12 +6,14 @@ import { GatewayService } from "src/common/gateway/gateway.service";
 import { Response, Request } from "express";
 import { GatewayComponentRequest } from "src/common/gateway/entities/gateway.component.request";
 import { PluginService } from "src/common/plugins/plugin.service";
-import { Constants, ParseBlockHashPipe, ParseBlsHashPipe, ParseIntPipe, ParseTransactionHashPipe } from "@multiversx/sdk-nestjs-common";
+import { Constants, ParseBlockHashPipe, ParseBlsHashPipe, ParseIntPipe } from "@multiversx/sdk-nestjs-common";
 import { CacheService, NoCache } from "@multiversx/sdk-nestjs-cache";
 import { OriginLogger } from "@multiversx/sdk-nestjs-common";
 import { DeepHistoryInterceptor } from "src/interceptors/deep-history.interceptor";
 import { DisableFieldsInterceptorOnController } from "@multiversx/sdk-nestjs-http";
 import { ParseAddressPipe } from 'src/pipes/parse.address.pipe';
+import { AliasAddressInfo } from "../accounts/entities/alias-address-info";
+import { ParseTransactionHashPipe } from "src/pipes/parse.transaction.pipe";
 
 @Controller()
 @ApiTags('proxy')
@@ -28,27 +30,27 @@ export class GatewayProxyController {
   ) { }
 
   @Get('/address/:address')
-  async getAddress(@Param('address', ParseAddressPipe) address: string) {
+  async getAddress(@Param('address', ParseAddressPipe) { address }: AliasAddressInfo,) {
     return await this.gatewayGet(`address/${address}`, GatewayComponentRequest.addressDetails);
   }
 
   @Get('/address/:address/balance')
-  async getAddressBalance(@Param('address', ParseAddressPipe) address: string) {
+  async getAddressBalance(@Param('address', ParseAddressPipe) { address }: AliasAddressInfo,) {
     return await this.gatewayGet(`address/${address}/balance`, GatewayComponentRequest.addressBalance);
   }
 
   @Get('/address/:address/nonce')
-  async getAddressNonce(@Param('address', ParseAddressPipe) address: string) {
+  async getAddressNonce(@Param('address', ParseAddressPipe) { address }: AliasAddressInfo,) {
     return await this.gatewayGet(`address/${address}/nonce`, GatewayComponentRequest.addressNonce);
   }
 
   @Get('/address/:address/shard')
-  async getAddressShard(@Param('address', ParseAddressPipe) address: string) {
+  async getAddressShard(@Param('address', ParseAddressPipe) { address }: AliasAddressInfo,) {
     return await this.gatewayGet(`address/${address}/shard`, GatewayComponentRequest.addressShard);
   }
 
   @Get('/address/:address/key/:key')
-  async getAddressStorageKey(@Param('address', ParseAddressPipe) address: string, @Param('key') key: string) {
+  async getAddressStorageKey(@Param('address', ParseAddressPipe) { address }: AliasAddressInfo, @Param('key') key: string) {
     // eslint-disable-next-line require-await
     return await this.gatewayGet(`address/${address}/key/${key}`, GatewayComponentRequest.addressStorage, undefined, async (error) => {
       if (error?.response?.data?.error?.includes('get value for key error')) {
@@ -60,17 +62,17 @@ export class GatewayProxyController {
   }
 
   @Get('/address/:address/transactions')
-  async getAddressTransactions(@Param('address', ParseAddressPipe) address: string) {
+  async getAddressTransactions(@Param('address', ParseAddressPipe) { address }: AliasAddressInfo,) {
     return await this.gatewayGet(`address/${address}/transactions`, GatewayComponentRequest.addressTransactions);
   }
 
   @Get('/address/:address/guardian-data')
-  async getAddressGuardianData(@Param('address', ParseAddressPipe) address: string) {
+  async getAddressGuardianData(@Param('address', ParseAddressPipe) { address }: AliasAddressInfo,) {
     return await this.gatewayGet(`address/${address}/guardian-data`, GatewayComponentRequest.guardianData);
   }
 
   @Get('/address/:address/esdt')
-  async getAddressEsdt(@Param('address', ParseAddressPipe) address: string) {
+  async getAddressEsdt(@Param('address', ParseAddressPipe) { address }: AliasAddressInfo,) {
     // eslint-disable-next-line require-await
     return await this.gatewayGet(`address/${address}/esdt`, GatewayComponentRequest.addressDetails, undefined, async (error) => {
       const message = error.response?.data?.error;

@@ -38,6 +38,7 @@ import { AccountKeyFilter } from './entities/account.key.filter';
 import { Provider } from '../providers/entities/provider';
 import { ApplicationMostUsed } from './entities/application.most.used';
 import { AddressUtilsV13 } from 'src/utils/address.utils';
+import { AliasAddressInfo } from './entities/alias-address-info';
 
 @Injectable()
 export class AccountService {
@@ -80,28 +81,29 @@ export class AccountService {
     return await this.indexerService.getAccountsCount(filter);
   }
 
-  async getAccount(address: string, fields?: string[], withGuardianInfo?: boolean): Promise<AccountDetailed | null> {
-    const [mvxAddress, evmAddress] = await this.gatewayService.getAliasAddresses(address);
-    if (!mvxAddress || !AddressUtilsV13.isAddressValid(mvxAddress)) {
+  async getAccount(aliasAddressInfo: AliasAddressInfo, fields?: string[], withGuardianInfo?: boolean): Promise<AccountDetailed | null> {
+    const { address, evmAddress } = aliasAddressInfo;
+    console.log({ address, evmAddress });
+    if (!address || !AddressUtilsV13.isAddressValid(address)) {
       return null;
     }
 
-    const provider: Provider | undefined = await this.providerService.getProvider(mvxAddress);
+    const provider: Provider | undefined = await this.providerService.getProvider(address);
 
     let txCount: number = 0;
     let scrCount: number = 0;
 
     if (!fields || fields.length === 0 || fields.includes(AccountOptionalFieldOption.txCount)) {
-      txCount = await this.getAccountTxCount(mvxAddress);
+      txCount = await this.getAccountTxCount(address);
     }
 
     if (!fields || fields.length === 0 || fields.includes(AccountOptionalFieldOption.scrCount)) {
-      scrCount = await this.getAccountScResults(mvxAddress);
+      scrCount = await this.getAccountScResults(address);
     }
 
     const [account, elasticSearchAccount] = await Promise.all([
-      this.getAccountRaw(mvxAddress, txCount, scrCount),
-      this.indexerService.getAccount(mvxAddress),
+      this.getAccountRaw(address, txCount, scrCount),
+      this.indexerService.getAccount(address),
     ]);
 
     if (account && withGuardianInfo === true) {

@@ -21,6 +21,8 @@ import { GuardianResult } from "./entities/guardian.result";
 import { TransactionProcessStatus } from "./entities/transaction.process.status";
 import { TxPoolGatewayResponse } from "./entities/tx.pool.gateway.response";
 import { AddressUtilsV13 } from "src/utils/address.utils";
+import { CacheInfo } from "src/utils/cache.info";
+import { CacheService } from "@multiversx/sdk-nestjs-cache";
 
 const ETHAliasAddress = '0002';
 @Injectable()
@@ -45,7 +47,8 @@ export class GatewayService {
   constructor(
     private readonly apiConfigService: ApiConfigService,
     @Inject(forwardRef(() => ApiService))
-    private readonly apiService: ApiService
+    private readonly apiService: ApiService,
+    private readonly cachingService: CacheService
   ) { }
 
   async getVersion(): Promise<string | undefined> {
@@ -259,26 +262,48 @@ export class GatewayService {
   }
 
   async getAliasAddress(address: string): Promise<string | null> {
+    return await this.cachingService.getOrSet(
+      CacheInfo.AliasAddress(address).key,
+      async () => await this.getAliasAddressRaw(address),
+      CacheInfo.AliasAddress(address).ttl,
+    );
+  }
+
+  async getAliasAddressRaw(address: string): Promise<string | null> {
     try {
-      const result = await this.create('address/alias-address', GatewayComponentRequest.aliasAddress, {
+      const result = await this.create('address/alias-address', GatewayComponentRequest.aliasAddress, [{
         mvxAddress: address,
         requestedIdentifier: ETHAliasAddress,
-      });
+      }]);
 
-      return result;
+      let data = result[address] as string | null;
+      if (data && !data.startsWith('0x')) {
+        data = '0x' + data;
+      }
+
+      return data;
     } catch (error: any) {
       return null;
     }
   }
 
   async getMvxAddress(address: string): Promise<string | null> {
-    try {
-      const result = await this.create('address/mvx-address', GatewayComponentRequest.mvxAddress, {
-        aliasAddress: address,
-        requestedIdentifier: ETHAliasAddress,
-      });
+    return await this.cachingService.getOrSet(
+      CacheInfo.MvxAddress(address).key,
+      async () => await this.getMvxAddressRaw(address),
+      CacheInfo.MvxAddress(address).ttl,
+    );
+  }
 
-      return result;
+  async getMvxAddressRaw(address: string): Promise<string | null> {
+    try {
+      const hexAddress = address.startsWith('0x') ? address.slice(2) : address;
+      const result = await this.create('address/mvx-address', GatewayComponentRequest.mvxAddress, [{
+        aliasAddress: hexAddress,
+        aliasIdentifier: ETHAliasAddress,
+      }]);
+
+      return result[hexAddress];
     } catch (error: any) {
       return null;
     }

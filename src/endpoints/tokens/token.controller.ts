@@ -25,6 +25,7 @@ import { TokenType } from "src/common/indexer/entities";
 import { ParseArrayPipeOptions } from "@multiversx/sdk-nestjs-common/lib/pipes/entities/parse.array.options";
 import { MexPairType } from "../mex/entities/mex.pair.type";
 import { ParseAddressPipe } from 'src/pipes/parse.address.pipe';
+import { AliasAddressInfo } from "../accounts/entities/alias-address-info";
 
 @Controller()
 @ApiTags('tokens')
@@ -337,7 +338,7 @@ export class TokenController {
   @ApiNotFoundResponse({ description: 'Token not found' })
   async getTokenRolesForAddress(
     @Param('identifier', ParseTokenPipe) identifier: string,
-    @Param('address', ParseAddressPipe) address: string,
+    @Param('address', ParseAddressPipe) { address }: AliasAddressInfo,
   ): Promise<TokenRoles> {
     const isToken = await this.tokenService.isToken(identifier);
     if (!isToken) {

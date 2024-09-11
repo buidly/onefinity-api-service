@@ -75,6 +75,9 @@
     "copy-e2e-mainnet-config:windows": "copy .\\config\\config.e2e.mainnet.yaml .\\config\\config.yaml",
     "copy-e2e-mocked-mainnet-config:windows": "copy .\\config\\config.e2e-mocked.mainnet.yaml .\\config\\config.yaml"
   },
+  "resolutions": {
+    "sharp": "0.28.0"
+  },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.54.0",
     "@elrondnetwork/erdjs-dex": "^0.2.12-alpha",
@@ -142,6 +145,8 @@
     "swagger-ui-express": "^4.3.0",
     "tiny-async-pool": "^1.2.0",
     "typeorm": "0.3.10",
+    "web3": "^4.12.1",
+    "web3-validator": "^2.0.6",
     "winston": "^3.6.0",
     "winston-daily-rotate-file": "^4.7.1",
     "yup": "^0.32.11"
@@ -162,6 +167,7 @@
     "@types/json-diff": "^0.7.0",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/node": "^17.0.21",
+    "@types/node-fetch": "^2.6.11",
     "@types/redis": "^2.8.32",
     "@types/request-ip": "0.0.37",
     "@types/sharp": "^0.28.3",
