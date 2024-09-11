@@ -8,7 +8,6 @@ import { GatewayService } from "./gateway.service";
   imports: [
     ApiConfigModule,
     DynamicModuleUtils.getApiModule(),
-    DynamicModuleUtils.getCacheModule(),
   ],
   providers: [
     GatewayService,

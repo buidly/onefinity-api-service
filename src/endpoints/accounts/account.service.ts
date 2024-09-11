@@ -83,7 +83,6 @@ export class AccountService {
 
   async getAccount(aliasAddressInfo: AliasAddressInfo, fields?: string[], withGuardianInfo?: boolean): Promise<AccountDetailed | null> {
     const { address, evmAddress } = aliasAddressInfo;
-    console.log({ address, evmAddress });
     if (!address || !AddressUtilsV13.isAddressValid(address)) {
       return null;
     }

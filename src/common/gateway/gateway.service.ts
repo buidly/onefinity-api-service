@@ -1,28 +1,25 @@
+import { BinaryUtils, ContextTracker } from "@multiversx/sdk-nestjs-common";
+import { ApiService, ApiSettings } from "@multiversx/sdk-nestjs-http";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { LogPerformanceAsync } from "src/utils/log.performance.decorator";
+import { MetricsEvents } from "src/utils/metrics-events.constants";
+import { ApiConfigService } from "../api-config/api.config.service";
 import { Account } from "./entities/account";
 import { Auction } from "./entities/auction";
 import { EsdtAddressRoles } from "./entities/esdt.roles";
 import { EsdtSupply } from "./entities/esdt.supply";
 import { GatewayComponentRequest } from "./entities/gateway.component.request";
-import { MetricsEvents } from "src/utils/metrics-events.constants";
-import { LogPerformanceAsync } from "src/utils/log.performance.decorator";
+import { GuardianResult } from "./entities/guardian.result";
 import { HeartbeatStatus } from "./entities/heartbeat.status";
-import { TrieStatistics } from "./entities/trie.statistics";
 import { NetworkConfig } from "./entities/network.config";
 import { NetworkEconomics } from "./entities/network.economics";
 import { NetworkStatus } from "./entities/network.status";
 import { NftData } from "./entities/nft.data";
 import { TokenData } from "./entities/token.data";
 import { Transaction } from "./entities/transaction";
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { ApiConfigService } from "../api-config/api.config.service";
-import { BinaryUtils, ContextTracker } from "@multiversx/sdk-nestjs-common";
-import { ApiService, ApiSettings } from "@multiversx/sdk-nestjs-http";
-import { GuardianResult } from "./entities/guardian.result";
 import { TransactionProcessStatus } from "./entities/transaction.process.status";
+import { TrieStatistics } from "./entities/trie.statistics";
 import { TxPoolGatewayResponse } from "./entities/tx.pool.gateway.response";
-import { AddressUtilsV13 } from "src/utils/address.utils";
-import { CacheInfo } from "src/utils/cache.info";
-import { CacheService } from "@multiversx/sdk-nestjs-cache";
 
 const ETHAliasAddress = '0002';
 @Injectable()
@@ -48,7 +45,6 @@ export class GatewayService {
     private readonly apiConfigService: ApiConfigService,
     @Inject(forwardRef(() => ApiService))
     private readonly apiService: ApiService,
-    private readonly cachingService: CacheService
   ) { }
 
   async getVersion(): Promise<string | undefined> {
@@ -262,11 +258,7 @@ export class GatewayService {
   }
 
   async getAliasAddress(address: string): Promise<string | null> {
-    return await this.cachingService.getOrSet(
-      CacheInfo.AliasAddress(address).key,
-      async () => await this.getAliasAddressRaw(address),
-      CacheInfo.AliasAddress(address).ttl,
-    );
+    return await this.getAliasAddressRaw(address);
   }
 
   async getAliasAddressRaw(address: string): Promise<string | null> {
@@ -288,11 +280,7 @@ export class GatewayService {
   }
 
   async getMvxAddress(address: string): Promise<string | null> {
-    return await this.cachingService.getOrSet(
-      CacheInfo.MvxAddress(address).key,
-      async () => await this.getMvxAddressRaw(address),
-      CacheInfo.MvxAddress(address).ttl,
-    );
+    return await this.getMvxAddressRaw(address);
   }
 
   async getMvxAddressRaw(address: string): Promise<string | null> {
@@ -306,20 +294,6 @@ export class GatewayService {
       return result[hexAddress];
     } catch (error: any) {
       return null;
-    }
-  }
-
-  async getAliasAddresses(address: string): Promise<[string | null, string | null]> {
-    try {
-      if (AddressUtilsV13.isAddressValid(address)) {
-        const evmAddress = await this.getAliasAddress(address);
-        return [address, evmAddress];
-      }
-
-      const mvxAddress = await this.getMvxAddress(address);
-      return [mvxAddress, address];
-    } catch (error: any) {
-      return [null, null];
     }
   }
 }
