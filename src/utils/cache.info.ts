@@ -688,4 +688,11 @@ export class CacheInfo {
       ttl: Constants.oneMinute() * 10,
     };
   }
+
+  static FaucetClaim(address: string): CacheInfo {
+    return {
+      key: `faucetClaim:${address}`,
+      ttl: Constants.oneMinute() * 10,
+    };
+  }
 }

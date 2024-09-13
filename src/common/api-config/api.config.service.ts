@@ -7,7 +7,7 @@ import { StatusCheckerThresholds } from './entities/status-checker-thresholds';
 
 @Injectable()
 export class ApiConfigService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) { }
 
   getConfig<T>(configKey: string): T | undefined {
     return this.configService.get<T>(configKey);
@@ -277,6 +277,15 @@ export class ApiConfigService {
     }
 
     return tmpUrl;
+  }
+
+  getChainId(): string {
+    const chainId = this.configService.get<string>('chainId');
+    if (!chainId) {
+      throw new Error('No chainId present');
+    }
+
+    return chainId;
   }
 
   getIsTransactionProcessorCronActive(): boolean {

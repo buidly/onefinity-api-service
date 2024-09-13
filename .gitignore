@@ -42,3 +42,4 @@ lerna-debug.log*
 /src/plugins
 
 .env
+faucetWallet.pem

@@ -94,6 +94,7 @@
     "@multiversx/sdk-nestjs-monitoring": "^3.7.4",
     "@multiversx/sdk-nestjs-rabbitmq": "^3.7.4",
     "@multiversx/sdk-nestjs-redis": "^3.7.4",
+    "@multiversx/sdk-network-providers": "^2.7.1",
     "@multiversx/sdk-wallet": "^4.0.0",
     "@nestjs/apollo": "12.0.11",
     "@nestjs/common": "10.2.0",

@@ -1,44 +1,43 @@
-import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { AccountDetailed } from './entities/account.detailed';
-import { Account } from './entities/account';
-import { VmQueryService } from 'src/endpoints/vm.query/vm.query.service';
-import { ApiConfigService } from 'src/common/api-config/api.config.service';
-import { AccountDeferred } from './entities/account.deferred';
-import { QueryPagination } from 'src/common/entities/query.pagination';
-import { AccountKey } from './entities/account.key';
-import { DeployedContract } from './entities/deployed.contract';
-import { TransactionService } from '../transactions/transaction.service';
-import { PluginService } from 'src/common/plugins/plugin.service';
-import { AccountEsdtHistory } from "./entities/account.esdt.history";
-import { AccountHistory } from "./entities/account.history";
-import { StakeService } from '../stake/stake.service';
-import { TransferService } from '../transfers/transfer.service';
-import { SmartContractResultService } from '../sc-results/scresult.service';
-import { TransactionType } from '../transactions/entities/transaction.type';
-import { AssetsService } from 'src/common/assets/assets.service';
-import { TransactionFilter } from '../transactions/entities/transaction.filter';
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import { BinaryUtils, OriginLogger } from '@multiversx/sdk-nestjs-common';
 import { ApiService, ApiUtils } from "@multiversx/sdk-nestjs-http";
+import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { ApiConfigService } from 'src/common/api-config/api.config.service';
+import { AssetsService } from 'src/common/assets/assets.service';
+import { AccountAssets } from 'src/common/assets/entities/account.assets';
+import { QueryPagination } from 'src/common/entities/query.pagination';
 import { GatewayService } from 'src/common/gateway/gateway.service';
 import { IndexerService } from "src/common/indexer/indexer.service";
-import { AccountOptionalFieldOption } from './entities/account.optional.field.options';
-import { AccountAssets } from 'src/common/assets/entities/account.assets';
-import { CacheInfo } from 'src/utils/cache.info';
-import { UsernameService } from '../usernames/username.service';
-import { ContractUpgrades } from './entities/contract.upgrades';
-import { AccountVerification } from './entities/account.verification';
-import { AccountQueryOptions } from './entities/account.query.options';
-import { AccountHistoryFilter } from './entities/account.history.filter';
+import { PluginService } from 'src/common/plugins/plugin.service';
 import { ProtocolService } from 'src/common/protocol/protocol.service';
-import { ProviderService } from '../providers/provider.service';
+import { VmQueryService } from 'src/endpoints/vm.query/vm.query.service';
+import { AddressUtilsV13 } from 'src/utils/address.utils';
+import { CacheInfo } from 'src/utils/cache.info';
 import { KeysService } from '../keys/keys.service';
 import { NodeStatusRaw } from '../nodes/entities/node.status';
-import { AccountKeyFilter } from './entities/account.key.filter';
 import { Provider } from '../providers/entities/provider';
+import { ProviderService } from '../providers/provider.service';
+import { SmartContractResultService } from '../sc-results/scresult.service';
+import { StakeService } from '../stake/stake.service';
+import { TransactionFilter } from '../transactions/entities/transaction.filter';
+import { TransactionType } from '../transactions/entities/transaction.type';
+import { TransactionService } from '../transactions/transaction.service';
+import { TransferService } from '../transfers/transfer.service';
+import { UsernameService } from '../usernames/username.service';
+import { Account } from './entities/account';
+import { AccountDeferred } from './entities/account.deferred';
+import { AccountDetailed } from './entities/account.detailed';
+import { AccountEsdtHistory } from "./entities/account.esdt.history";
+import { AccountHistory } from "./entities/account.history";
+import { AccountHistoryFilter } from './entities/account.history.filter';
+import { AccountKey } from './entities/account.key';
+import { AccountKeyFilter } from './entities/account.key.filter';
+import { AccountOptionalFieldOption } from './entities/account.optional.field.options';
+import { AccountQueryOptions } from './entities/account.query.options';
+import { AccountVerification } from './entities/account.verification';
 import { ApplicationMostUsed } from './entities/application.most.used';
-import { AddressUtilsV13 } from 'src/utils/address.utils';
-import { AliasAddressInfo } from './entities/alias-address-info';
+import { ContractUpgrades } from './entities/contract.upgrades';
+import { DeployedContract } from './entities/deployed.contract';
 
 @Injectable()
 export class AccountService {
@@ -81,8 +80,7 @@ export class AccountService {
     return await this.indexerService.getAccountsCount(filter);
   }
 
-  async getAccount(aliasAddressInfo: AliasAddressInfo, fields?: string[], withGuardianInfo?: boolean): Promise<AccountDetailed | null> {
-    const { address, evmAddress } = aliasAddressInfo;
+  async getAccount(address: string, fields?: string[], withGuardianInfo?: boolean): Promise<AccountDetailed | null> {
     if (!address || !AddressUtilsV13.isAddressValid(address)) {
       return null;
     }
@@ -100,9 +98,10 @@ export class AccountService {
       scrCount = await this.getAccountScResults(address);
     }
 
-    const [account, elasticSearchAccount] = await Promise.all([
+    const [account, elasticSearchAccount, evmAddress] = await Promise.all([
       this.getAccountRaw(address, txCount, scrCount),
       this.indexerService.getAccount(address),
+      this.gatewayService.getAliasAddress(address),
     ]);
 
     if (account && withGuardianInfo === true) {
