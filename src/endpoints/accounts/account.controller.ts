@@ -200,7 +200,7 @@ export class AccountController {
     @Query('fields', ParseArrayPipe) fields?: string[],
     @Query('timestamp', ParseIntPipe) _timestamp?: number,
   ): Promise<AccountDetailed> {
-    const account = await this.accountService.getAccount(addressInfo, fields, withGuardianInfo);
+    const account = await this.accountService.getAccount(addressInfo.address, fields, withGuardianInfo);
     if (!account) {
       throw new NotFoundException('Account not found');
     }

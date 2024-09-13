@@ -124,7 +124,7 @@ export class ProcessNftsService {
 
     let currentDepth = 0;
     while (AddressUtilsV13.isSmartContractAddress(collectionOwner) && currentDepth < ProcessNftsService.MAX_DEPTH) {
-      const account = await this.accountService.getAccount({ address: collectionOwner, evmAddress: null });
+      const account = await this.accountService.getAccount(collectionOwner);
       if (!account) {
         throw new Error(`Could not fetch account details for address '${collectionOwner}'`);
       }
