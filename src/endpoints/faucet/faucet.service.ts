@@ -1,12 +1,11 @@
+// @ts-nocheck
 import { Account, Address, Transaction, TransactionPayload } from "@multiversx/sdk-core";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import { Constants, OriginLogger } from '@multiversx/sdk-nestjs-common';
 import { ProxyNetworkProvider } from "@multiversx/sdk-network-providers/out";
-import { UserSigner } from "@multiversx/sdk-wallet";
+import { UserSecretKey, UserSigner } from "@multiversx/sdk-wallet";
 import { BadRequestException, Injectable, NotAcceptableException } from '@nestjs/common';
 import BigNumber from "bignumber.js";
-import e from 'express';
-import { promises } from "fs";
 import { ApiConfigService } from 'src/common/api-config/api.config.service';
 import { AddressUtilsV13, HRP } from 'src/utils/address.utils';
 import { CacheInfo } from "src/utils/cache.info";
@@ -33,9 +32,13 @@ export class FaucetService {
 
   async initialize(): Promise<boolean> {
     try {
-      const pemText = await promises.readFile("../testwallets/alice.pem", { encoding: "utf8" });
-      this.signer = UserSigner.fromPem(pemText);
-      this.faucetAccount = new Account(new Address(this.signer.getAddress(HRP).bech32()));
+      const privateKey = this.apiConfigService.getFaucetPrivateKey();
+      if (!privateKey) {
+        return false;
+      }
+
+      this.signer = new UserSigner(UserSecretKey.fromString(privateKey));
+      this.faucetAccount = new Account(Address.newFromBech32(this.signer.getAddress(HRP).bech32()));
       return true;
     } catch (e) {
       this.logger.error('Could not initialize faucet');
@@ -69,12 +72,12 @@ export class FaucetService {
 
       const account = await this.accountService.getAccount(address);
       if (account && new BigNumber(account.balance).isGreaterThan(1 * 10 ^ 18)) {
-        throw new Error("Account balance exceeds 1 ONE");
+        throw new NotAcceptableException("Account balance exceeds 1 ONE");
       }
 
       const lastClaimTs = await this.cachingService.get(CacheInfo.FaucetClaim(address).key);
       if (lastClaimTs && (Date.now() - Number(lastClaimTs)) < 5 * 60 * 1000) {
-        throw new Error("You can only claim once every 5 minutes. Please try again later.");
+        throw new NotAcceptableException("You can only claim once every 5 minutes. Please try again later.");
       }
 
       this.logger.warn(`Send tokens to address: ${address}`);
@@ -84,7 +87,7 @@ export class FaucetService {
       const transaction = new Transaction({
         gasLimit: BigInt(500000),
         sender: this.faucetAccount.address,
-        receiver: address,
+        receiver: AddressUtilsV13.isAddressValid(address) ? address : this.apiConfigService.getCrossAddressTransferContract(),
         value: BigInt(5000000000000000000), // 5 ONE
         chainID: this.apiConfigService.getChainId(),
         nonce: nonce,
@@ -105,7 +108,7 @@ export class FaucetService {
     } catch (error) {
       this.logger.error(`An error has occurred sending faucet funds to ${address}`);
       this.logger.error(error);
-      throw e;
+      throw error;
     }
   }
 

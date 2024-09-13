@@ -38,6 +38,7 @@ import { WebsocketController } from "./websocket/websocket.controller";
 import { PoolController } from "./pool/pool.controller";
 import { TpsController } from "./tps/tps.controller";
 import { ApplicationController } from "./applications/application.controller";
+import { FaucetController } from "./faucet/faucet.controller";
 
 @Module({})
 export class EndpointsControllersModule {
@@ -48,7 +49,7 @@ export class EndpointsControllersModule {
       ProviderController, GatewayProxyController, RoundController, SmartContractResultController, ShardController, StakeController, StakeController,
       TokenController, TransactionController, UsernameController, VmQueryController, WaitingListController,
       HealthCheckController, DappConfigController, WebsocketController, TransferController,
-      ProcessNftsPublicController, TransactionsBatchController, ApplicationController,
+      ProcessNftsPublicController, TransactionsBatchController, ApplicationController, FaucetController,
     ];
 
     const isMarketplaceFeatureEnabled = configuration().features?.marketplace?.enabled ?? false;

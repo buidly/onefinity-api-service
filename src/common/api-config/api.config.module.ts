@@ -8,6 +8,7 @@ import { ApiConfigService } from "./api.config.service";
   imports: [
     ConfigModule.forRoot({
       load: [configuration],
+      envFilePath: '.env',
     }),
   ],
   providers: [

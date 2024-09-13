@@ -288,6 +288,20 @@ export class ApiConfigService {
     return chainId;
   }
 
+  getFaucetPrivateKey(): string | undefined {
+    const privateKey = this.configService.get<string | undefined>('FAUCET_PRIVATE_KEY');
+    return privateKey;
+  }
+
+  getCrossAddressTransferContract(): string | undefined {
+    const contract = this.configService.get<string | undefined>('contracts.crossAddressTransfer');
+    if (!contract) {
+      throw new Error('No cross address transfer present');
+    }
+
+    return contract;
+  }
+
   getIsTransactionProcessorCronActive(): boolean {
     return (
       this.configService.get<boolean>(
