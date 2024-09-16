@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { Account, Address, Transaction, TransactionPayload } from "@multiversx/sdk-core";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import { Constants, OriginLogger } from '@multiversx/sdk-nestjs-common';
@@ -7,7 +7,7 @@ import { UserSecretKey, UserSigner } from "@multiversx/sdk-wallet";
 import { BadRequestException, Injectable, NotAcceptableException } from '@nestjs/common';
 import BigNumber from "bignumber.js";
 import { ApiConfigService } from 'src/common/api-config/api.config.service';
-import { AddressUtilsV13, HRP } from 'src/utils/address.utils';
+import { AddressUtilsV13, ONE_HRP } from 'src/utils/address.utils';
 import { CacheInfo } from "src/utils/cache.info";
 import { AccountService } from "../accounts/account.service";
 import { TransactionSendResult } from '../transactions/entities/transaction.send.result';
@@ -38,7 +38,7 @@ export class FaucetService {
       }
 
       this.signer = new UserSigner(UserSecretKey.fromString(privateKey));
-      this.faucetAccount = new Account(Address.newFromBech32(this.signer.getAddress(HRP).bech32()));
+      this.faucetAccount = new Account(Address.newFromBech32(this.signer.getAddress(ONE_HRP).bech32()));
       return true;
     } catch (e) {
       this.logger.error('Could not initialize faucet');

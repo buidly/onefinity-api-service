@@ -1,13 +1,12 @@
-import { Address } from '@multiversx/sdk-core/out';
 import {
   ArgumentMetadata,
   BadRequestException,
-  PipeTransform,
   Injectable,
+  PipeTransform,
 } from '@nestjs/common';
 import { GatewayService } from 'src/common/gateway/gateway.service';
 import { AliasAddressInfo } from 'src/endpoints/accounts/entities/alias-address-info';
-import { AddressUtilsV13, ERD_HRP, HRP } from 'src/utils/address.utils';
+import { AddressUtilsV13 } from 'src/utils/address.utils';
 
 @Injectable()
 export class ParseAddressPipe
@@ -31,12 +30,7 @@ export class ParseAddressPipe
     }
 
     if (AddressUtilsV13.isAddressValid(value)) {
-      let oneAddressBech32 = value;
-      if (value.startsWith(ERD_HRP)) {
-        const erdAddress = Address.newFromBech32(value);
-        const oneAddress = new Address(erdAddress.getPublicKey(), HRP);
-        oneAddressBech32 = oneAddress.bech32();
-      }
+      let oneAddressBech32 = AddressUtilsV13.erdAddressToOneAddress(value);
       const evmAddress = await this.gatewayService.getAliasAddress(oneAddressBech32);
       return { address: oneAddressBech32, evmAddress };
     }

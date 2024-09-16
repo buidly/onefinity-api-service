@@ -4,7 +4,7 @@ import { Logger } from '@nestjs/common';
 import { isAddress } from 'web3-validator';
 
 const EVM_VM_TYPE = '0600';
-export const HRP = 'one';
+export const ONE_HRP = 'one';
 export const ERD_HRP = 'erd';
 
 // TODO Fix AddressUtils from @multiversx/sdk-nestjs-common to use sdk-core V13
@@ -156,5 +156,13 @@ export class AddressUtilsV13 {
 
   static sliceEvmAddress(address: string) {
     return address.startsWith('0x') ? address.slice(2) : address;
+  }
+
+  static erdAddressToOneAddress(address: string) {
+    if (address.startsWith(ONE_HRP)) return address;
+
+    const erdAddress = Address.newFromBech32(address);
+    const oneAddress = new Address(erdAddress.getPublicKey(), ONE_HRP);
+    return oneAddress.bech32();
   }
 }

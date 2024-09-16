@@ -293,7 +293,7 @@ export class ApiConfigService {
     return privateKey;
   }
 
-  getCrossAddressTransferContract(): string | undefined {
+  getCrossAddressTransferContract(): string {
     const contract = this.configService.get<string | undefined>('contracts.crossAddressTransfer');
     if (!contract) {
       throw new Error('No cross address transfer present');
