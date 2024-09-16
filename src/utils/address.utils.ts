@@ -5,6 +5,7 @@ import { isAddress } from 'web3-validator';
 
 const EVM_VM_TYPE = '0600';
 export const HRP = 'one';
+export const ERD_HRP = 'erd';
 
 // TODO Fix AddressUtils from @multiversx/sdk-nestjs-common to use sdk-core V13
 export class AddressUtilsV13 {
