@@ -220,7 +220,6 @@ export class GatewayProxyController {
   @Get('/network/config')
   async getNetworkConfig() {
     const proxyResponse = await this.gatewayGet('network/config', GatewayComponentRequest.networkConfig);
-    proxyResponse.data.config.erd_chain_id = 'T';
     return proxyResponse;
   }
 
