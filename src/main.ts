@@ -38,6 +38,9 @@ import { JwtOrNativeAuthGuard } from '@multiversx/sdk-nestjs-auth';
 import { WebSocketPublisherModule } from './common/websockets/web-socket-publisher-module';
 import { IndexerService } from './common/indexer/indexer.service';
 import { NotWritableError } from './common/indexer/entities/not.writable.error';
+import { LibraryConfig } from '@multiversx/sdk-core/out';
+
+LibraryConfig.DefaultAddressHrp = 'one';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrapper');

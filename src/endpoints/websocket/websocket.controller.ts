@@ -7,7 +7,6 @@ import { WebsocketService } from "./websocket.service";
 @ApiTags('websocket')
 export class WebsocketController {
   constructor(
-    // @ts-ignore
     private readonly websocketConfigService: WebsocketService,
   ) { }
 
@@ -16,7 +15,6 @@ export class WebsocketController {
   @ApiOkResponse({ type: WebsocketConfig })
   @ApiNotFoundResponse({ description: 'Websocket configuration not found' })
   getConfiguration(): WebsocketConfig {
-    // return this.websocketConfigService.getConfiguration();
-    throw new Error('Websocket not configured');
+    return this.websocketConfigService.getConfiguration();
   }
 }
