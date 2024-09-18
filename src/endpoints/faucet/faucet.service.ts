@@ -141,7 +141,7 @@ export class FaucetService {
   }
 
   async setFaucetNonce(nonce: number) {
-    await this.cachingService.setRemote(this.getFaucetNonceKey(), nonce, Constants.oneMonth() * 12);
+    await this.cachingService.setRemote(this.getFaucetNonceKey(), nonce, Constants.oneMinute() * 5);
   }
 
   async getFaucetNonce(): Promise<number | undefined> {
@@ -154,6 +154,6 @@ export class FaucetService {
   }
 
   private getFaucetNonceKey(): string {
-    return 'faucetNonce';
+    return 'faucetWalletNonce';
   }
 }
