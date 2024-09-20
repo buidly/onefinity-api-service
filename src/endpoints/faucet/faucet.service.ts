@@ -71,12 +71,13 @@ export class FaucetService {
       }
 
       const account = await this.accountService.getAccount(address);
-      if (account && new BigNumber(account.balance).isGreaterThan(1 * 10 ^ 18)) {
+      const maxOneAmount = new BigNumber(1).shiftedBy(18);
+      if (account && new BigNumber(account.balance).isGreaterThan(maxOneAmount)) {
         throw new NotAcceptableException("Account balance exceeds 1 ONE");
       }
 
       const lastClaimTs = await this.cachingService.get(CacheInfo.FaucetClaim(address).key);
-      if (lastClaimTs && (Date.now() - Number(lastClaimTs)) < 5 * 60 * 1000) {
+      if (lastClaimTs && ((Date.now() - Number(lastClaimTs)) < 5 * 60 * 1000)) {
         throw new NotAcceptableException("You can only claim once every 5 minutes. Please try again later.");
       }
 
