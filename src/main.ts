@@ -274,14 +274,14 @@ async function configurePublicApp(publicApp: NestExpressApplication, apiConfigSe
   );
 
   const documentBuilder = new DocumentBuilder()
-    .setTitle('Multiversx API')
+    .setTitle('Onefinity API')
     .setDescription(description)
     .setVersion('1.0.0')
-    .setExternalDoc('Find out more about Multiversx API', 'https://docs.multiversx.com/sdk-and-tools/rest-api/rest-api/');
+    .setExternalDoc('Find out more about Onefinity API', 'https://docs.onefinity.network/');
 
   const config = documentBuilder.build();
   const options = {
-    customSiteTitle: 'Multiversx API',
+    customSiteTitle: 'Onefinity API',
     customCss: `.topbar-wrapper img 
           {
             content:url(\'/img/mvx-ledger-icon-mint.png\'); width:100px; height:auto;

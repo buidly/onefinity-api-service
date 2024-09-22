@@ -1,5 +1,4 @@
-
-# Contributing to api.multiversx.com
+# Contributing to Onefinity Api
 
 If you are unfamiliar with the workflow of contributing to github, you can refer to this [this article](https://github.com/firstcontributions/first-contributions/blob/master/README.md)
 
@@ -10,6 +9,7 @@ The development should happen in a personal fork, cloned on the local machine.
 ## Use development branch
 
 Changes should happen against:
+
 - the `development` branch if it is about a new feature
 - the `main` branch if the change is a bugfix
 
@@ -17,7 +17,7 @@ Changes should happen against:
 
 We use Visual Studio code internally and have also included some specific settings, such as running ESLint fixes on save, as well as automatic code formatting.
 
-If contributing from other tools such as Jetbrains Webstorm, there might be slight formatting differences which might interfere with later edits from the internal team or from other external contributors.  
+If contributing from other tools such as Jetbrains Webstorm, there might be slight formatting differences which might interfere with later edits from the internal team or from other external contributors.
 
 ## Use linter
 
@@ -28,6 +28,7 @@ You can also run `npm run lint:fix` to apply automatic fixes to the code.
 ## Writing tests
 
 Below some guidelines regarding writing unit tests:
+
 - Attempt to write some unit tests which verify the component in isolation and mock the external components around it
 - If the component relies on many other external components which are difficult to mock, write e2e tests for it
 - Try to cover both expected functionality but also verify that the code fails in expected ways
@@ -36,6 +37,7 @@ Below some guidelines regarding writing unit tests:
 ## Make sure the tests pass
 
 To make sure the test suite passes, run the following commands before opening a pull request:
+
 - `npm run test` to run unit tests
 - `npm run test:e2e:warm:mocked` to warm-up integration tests with mocked data, for performance purposes
 - `npm run test:e2e` to run integration tests

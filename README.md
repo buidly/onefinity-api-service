@@ -1,4 +1,4 @@
-Unified REST API facade for providing data related to the Multiversx blockchain.
+Unified REST API facade for providing data related to the Onefinity blockchain.
 
 ## Quick start
 
@@ -19,7 +19,7 @@ After running the sample, you can stop the Docker container with `docker-compose
 
 ## Available Scripts
 
-This is an Multiversx project built on Nest.js framework.
+This is an Onefinity project built on Nest.js framework.
 
 ### `npm run start:prod`
 
@@ -59,27 +59,29 @@ $ npm run test:cov
 ```
 
 It depends on the following external systems:
-- gateway: 
+
+- gateway:
   - provides access to node information, such as network settings, account balance, sending transactions, etc
-  - docs: https://docs.multiversx.com/sdk-and-tools/proxy/
-- index: 
+- index:
   - a database that indexes data that can be queries, such as transactions, blocks, nfts, etc.
-  - docs: https://docs.multiversx.com/sdk-and-tools/elastic-search/
 - delegation: used to fetch providers list from the delegation API
 
 It uses on the following internal systems:
+
 - redis: used to cache various data, for performance purposes
 - rabbitmq: pub/sub for sending mainly NFT process information from the transaction processor instance to the queue worker instance
 
 An API instance can be started with the following behavior:
+
 - public API: provides REST API for the consumers
 - private API: used to report prometheus metrics & health checks
 - transaction processor & completed: fetches real-time transactions & logs from the blockchain; takes action based on various events, such as clearing cache values and publishing events on a queue
-- cache warmer: used to proactively fetch data & pushes it to cache, to improve performance & scalability 
+- cache warmer: used to proactively fetch data & pushes it to cache, to improve performance & scalability
 - elastic updater: used to attach various extra information to items in the elasticsearch, for not having to fetch associated data from other external systems when performing listing requests
 - events notifier: perform various decisions based on incoming logs & events
 
 It depends on the following optional external systems:
+
 - events notifier rabbitmq: queue that pushes logs & events which are handled internally e.g. to trigger NFT media fetch
 - data: provides EGLD price information for transactions
 - xexchange: provides price information regarding various tokens listed on the xExchange
@@ -90,5 +92,6 @@ It depends on the following optional external systems:
 - github: used to fetch provider profile & node information from github
 
 It uses the following optional internal systems:
+
 - mysql database: used to store mainly NFT media & metadata information
 - mongo database: used to store mainly NFT media & metadata information
