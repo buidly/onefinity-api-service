@@ -12,6 +12,7 @@ import { CacheInfo } from "src/utils/cache.info";
 import { AccountService } from "../accounts/account.service";
 import { TransactionSendResult } from '../transactions/entities/transaction.send.result';
 import { TransactionService } from '../transactions/transaction.service';
+import { GatewayService } from "src/common/gateway/gateway.service";
 
 @Injectable()
 export class FaucetService {
@@ -26,6 +27,7 @@ export class FaucetService {
     private readonly apiConfigService: ApiConfigService,
     private readonly accountService: AccountService,
     private readonly cachingService: CacheService,
+    private readonly gatewayService: GatewayService,
   ) {
     this.provider = new ProxyNetworkProvider(this.apiConfigService.getSelfUrl());
   }
@@ -70,7 +72,12 @@ export class FaucetService {
         throw new Error('No faceut account initialized');
       }
 
-      const account = await this.accountService.getAccount(address);
+      let mvxAddress: string | null = address;
+      if (AddressUtilsV13.isEvmAddress(address)) {
+        mvxAddress = await this.gatewayService.getMvxAddress(address);
+      }
+
+      const account = await this.accountService.getAccount(mvxAddress ?? '');
       const maxOneAmount = new BigNumber(1).shiftedBy(18);
       if (account && new BigNumber(account.balance).isGreaterThan(maxOneAmount)) {
         throw new NotAcceptableException("Account balance exceeds 1 ONE");
