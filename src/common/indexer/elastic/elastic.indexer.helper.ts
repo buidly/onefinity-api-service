@@ -18,6 +18,7 @@ import { SmartContractResultFilter } from "src/endpoints/sc-results/entities/sma
 import { ApplicationFilter } from "src/endpoints/applications/entities/application.filter";
 import { NftType } from "../entities/nft.type";
 import { AddressUtilsV13 } from "src/utils/address.utils";
+import { EventsFilter } from "src/endpoints/events/entities/events.filter";
 
 @Injectable()
 export class ElasticIndexerHelper {
@@ -84,54 +85,48 @@ export class ElasticIndexerHelper {
       .withMustMultiShouldCondition(Object.values(NftType), type => QueryType.Match('type', type));
 
     if (address) {
-      if (this.apiConfigService.getIsIndexerV3FlagActive()) {
-        elasticQuery = elasticQuery.withMustCondition(QueryType.Should(
-          [
-            QueryType.Match('currentOwner', address),
-            QueryType.Nested('roles', [new MatchQuery('roles.ESDTRoleNFTCreate', address)]),
-            QueryType.Nested('roles', [new MatchQuery('roles.ESDTRoleNFTBurn', address)]),
-            QueryType.Nested('roles', [new MatchQuery('roles.ESDTRoleNFTAddQuantity', address)]),
-            QueryType.Nested('roles', [new MatchQuery('roles.ESDTRoleNFTUpdateAttributes', address)]),
-            QueryType.Nested('roles', [new MatchQuery('roles.ESDTRoleNFTAddURI', address)]),
-            QueryType.Nested('roles', [new MatchQuery('roles.ESDTTransferRole', address)]),
-          ]
-        ));
-      } else {
-        elasticQuery = elasticQuery.withMustCondition(QueryType.Match('currentOwner', address));
-      }
+      elasticQuery = elasticQuery.withMustCondition(QueryType.Should(
+        [
+          QueryType.Match('currentOwner', address),
+          QueryType.Nested('roles', [new MatchQuery('roles.ESDTRoleNFTCreate', address)]),
+          QueryType.Nested('roles', [new MatchQuery('roles.ESDTRoleNFTBurn', address)]),
+          QueryType.Nested('roles', [new MatchQuery('roles.ESDTRoleNFTAddQuantity', address)]),
+          QueryType.Nested('roles', [new MatchQuery('roles.ESDTRoleNFTUpdateAttributes', address)]),
+          QueryType.Nested('roles', [new MatchQuery('roles.ESDTRoleNFTAddURI', address)]),
+          QueryType.Nested('roles', [new MatchQuery('roles.ESDTTransferRole', address)]),
+        ]
+      ));
     }
 
     if (filter.before || filter.after) {
       elasticQuery = elasticQuery.withDateRangeFilter('timestamp', filter.before, filter.after);
     }
 
-    if (this.apiConfigService.getIsIndexerV3FlagActive()) {
-      if (filter.canCreate !== undefined) {
-        elasticQuery = this.getRoleCondition(elasticQuery, 'ESDTRoleNFTCreate', address, filter.canCreate);
-      }
-
-      if (filter.canBurn !== undefined) {
-        elasticQuery = this.getRoleCondition(elasticQuery, 'ESDTRoleNFTBurn', address, filter.canBurn);
-      }
-
-      if (filter.canAddQuantity !== undefined) {
-        elasticQuery = this.getRoleCondition(elasticQuery, 'ESDTRoleNFTAddQuantity', address, filter.canAddQuantity);
-      }
-
-      if (filter.canUpdateAttributes !== undefined) {
-        elasticQuery = this.getRoleCondition(elasticQuery, 'ESDTRoleNFTUpdateAttributes', address, filter.canUpdateAttributes);
-      }
-
-      if (filter.canAddUri !== undefined) {
-        elasticQuery = this.getRoleCondition(elasticQuery, 'ESDTRoleNFTAddURI', address, filter.canAddUri);
-      }
-
-      if (filter.canTransferRole !== undefined) {
-        elasticQuery = this.getRoleCondition(elasticQuery, 'ESDTTransferRole', address, filter.canTransferRole);
-      }
+    if (filter.canCreate !== undefined) {
+      elasticQuery = this.getRoleCondition(elasticQuery, 'ESDTRoleNFTCreate', address, filter.canCreate);
     }
 
-    if (filter.excludeMetaESDT === true) {
+    if (filter.canBurn !== undefined) {
+      elasticQuery = this.getRoleCondition(elasticQuery, 'ESDTRoleNFTBurn', address, filter.canBurn);
+    }
+
+    if (filter.canAddQuantity !== undefined) {
+      elasticQuery = this.getRoleCondition(elasticQuery, 'ESDTRoleNFTAddQuantity', address, filter.canAddQuantity);
+    }
+
+    if (filter.canUpdateAttributes !== undefined) {
+      elasticQuery = this.getRoleCondition(elasticQuery, 'ESDTRoleNFTUpdateAttributes', address, filter.canUpdateAttributes);
+    }
+
+    if (filter.canAddUri !== undefined) {
+      elasticQuery = this.getRoleCondition(elasticQuery, 'ESDTRoleNFTAddURI', address, filter.canAddUri);
+    }
+
+    if (filter.canTransferRole !== undefined) {
+      elasticQuery = this.getRoleCondition(elasticQuery, 'ESDTTransferRole', address, filter.canTransferRole);
+    }
+
+    if (filter.excludeMetaESDT === true && !filter.type) {
       elasticQuery = elasticQuery.withMustMultiShouldCondition([
         ...this.nonFungibleEsdtTypes,
         ...this.semiFungibleEsdtTypes,
@@ -158,6 +153,10 @@ export class ElasticIndexerHelper {
       elasticQuery = elasticQuery.withMustMultiShouldCondition(types, type => QueryType.Match('type', type));
     }
 
+    if (filter.subType) {
+      elasticQuery = elasticQuery.withMustMultiShouldCondition(filter.subType, subType => QueryType.Match('type', subType));
+    }
+
     return elasticQuery.withMustMatchCondition('token', filter.collection, QueryOperator.AND)
       .withMustMultiShouldCondition(filter.identifiers, identifier => QueryType.Match('token', identifier, QueryOperator.AND))
       .withSearchWildcardCondition(filter.search, ['token', 'name']);
@@ -179,13 +178,38 @@ export class ElasticIndexerHelper {
     }
 
     if (filter.search !== undefined) {
-      elasticQuery = elasticQuery.withSearchWildcardCondition(filter.search, ['token', 'name']);
+      const searchable = filter.search;
+      const conditions: AbstractQuery[] = [];
+      conditions.push(QueryType.Wildcard('data.name', `*${searchable.toLowerCase()}*`));
+      conditions.push(QueryType.Wildcard('data.token', `*${searchable.toLowerCase()}*`));
+
+      elasticQuery = elasticQuery.withMustCondition(QueryType.NestedShould('data', conditions));
     }
 
-    if (filter.type !== undefined) {
-      const types = (filter.type ?? '').split(',');
+    if (filter.type) {
+      const types = [];
+
+      for (const type of filter.type) {
+        switch (type) {
+          case NftType.NonFungibleESDT:
+            types.push(...this.nonFungibleEsdtTypes);
+            break;
+          case NftType.SemiFungibleESDT:
+            types.push(...this.semiFungibleEsdtTypes);
+            break;
+          case NftType.MetaESDT:
+            types.push(...this.metaEsdtTypes);
+            break;
+          default:
+            types.push(filter.type);
+        }
+      }
 
       elasticQuery = elasticQuery.withMustMultiShouldCondition(types, type => QueryType.Match('type', type));
+    }
+
+    if (filter.subType) {
+      elasticQuery = elasticQuery.withMustMultiShouldCondition(filter.subType, subType => QueryType.Match('type', subType, QueryOperator.AND));
     }
 
     if (identifier !== undefined) {
@@ -209,7 +233,7 @@ export class ElasticIndexerHelper {
     }
 
     if (filter.tags) {
-      elasticQuery = elasticQuery.withMustCondition(QueryType.Should(filter.tags.map(tag => QueryType.Nested("data", [new MatchQuery("data.tags", tag)]))));
+      elasticQuery = elasticQuery.withMustCondition(QueryType.Should(filter.tags.map(tag => QueryType.Nested("data", [new MatchQuery("data.tags", tag, QueryOperator.AND)]))));
     }
 
     if (filter.creator !== undefined) {
@@ -220,7 +244,7 @@ export class ElasticIndexerHelper {
       elasticQuery = elasticQuery.withMustCondition(QueryType.Should(filter.identifiers.map(identifier => QueryType.Match('identifier', identifier, QueryOperator.AND))));
     }
 
-    if (filter.isWhitelistedStorage !== undefined && this.apiConfigService.getIsIndexerV3FlagActive()) {
+    if (filter.isWhitelistedStorage !== undefined) {
       elasticQuery = elasticQuery.withMustCondition(QueryType.Nested("data", [new MatchQuery("data.whiteListedStorage", filter.isWhitelistedStorage)]));
     }
 
@@ -267,7 +291,7 @@ export class ElasticIndexerHelper {
     }
 
     if (filter.excludeMetaESDT === true) {
-      elasticQuery = elasticQuery.withMustMultiShouldCondition([NftType.SemiFungibleESDT, NftType.NonFungibleESDT], type => QueryType.Match('type', type));
+      elasticQuery = elasticQuery.withMustMultiShouldCondition([...this.nonFungibleEsdtTypes, ...this.semiFungibleEsdtTypes], type => QueryType.Match('type', type));
     }
 
     return elasticQuery;
@@ -293,13 +317,21 @@ export class ElasticIndexerHelper {
         QueryType.Exists('canBeIgnored'),
       ]))
         .withCondition(QueryConditionOptions.should, QueryType.Must([
-          QueryType.Match('type', 'normal'),
+          QueryType.Should([QueryType.Match('type', 'normal')]),
           QueryType.Should([
             QueryType.Match('sender', filter.address),
             QueryType.Match('receiver', filter.address),
             QueryType.Match('receivers', filter.address),
           ]),
         ]));
+    }
+
+    if (filter.relayer) {
+      elasticQuery = elasticQuery.withMustMatchCondition('relayerAddr', filter.relayer);
+    }
+
+    if (filter.isRelayed) {
+      elasticQuery = elasticQuery.withMustMatchCondition('isRelayed', filter.isRelayed);
     }
 
     if (filter.type) {
@@ -330,7 +362,7 @@ export class ElasticIndexerHelper {
       elasticQuery = elasticQuery.withMustMultiShouldCondition(filter.tokens, token => QueryType.Match('tokens', token, QueryOperator.AND));
     }
 
-    if (filter.functions && filter.functions.length > 0 && this.apiConfigService.getIsIndexerV3FlagActive()) {
+    if (filter.functions && filter.functions.length > 0) {
       if (filter.functions.length === 1 && filter.functions[0] === '') {
         elasticQuery = elasticQuery.withMustNotExistCondition('function');
       } else {
@@ -368,6 +400,10 @@ export class ElasticIndexerHelper {
           QueryType.Match('sender', filter.senderOrReceiver),
           QueryType.Match('receiver', filter.senderOrReceiver),
         ]));
+    }
+
+    if (filter.round) {
+      elasticQuery = elasticQuery.withMustMatchCondition('round', filter.round);
     }
 
     return elasticQuery;
@@ -460,10 +496,7 @@ export class ElasticIndexerHelper {
     if (address) {
       shouldQueries.push(QueryType.Match('sender', address));
       shouldQueries.push(QueryType.Match('receiver', address));
-
-      if (this.apiConfigService.getIsIndexerV3FlagActive()) {
-        shouldQueries.push(QueryType.Match('receivers', address));
-      }
+      shouldQueries.push(QueryType.Match('receivers', address));
     }
 
     const elasticQuery = ElasticQuery.create()
@@ -485,7 +518,7 @@ export class ElasticIndexerHelper {
       .withMustMultiShouldCondition(filter.tokens, token => QueryType.Match('tokens', token, QueryOperator.AND))
       .withDateRangeFilter('timestamp', filter.before, filter.after);
 
-    if (filter.functions && filter.functions.length > 0 && this.apiConfigService.getIsIndexerV3FlagActive()) {
+    if (filter.functions && filter.functions.length > 0) {
       if (filter.functions.length === 1 && filter.functions[0] === '') {
         elasticQuery = elasticQuery.withMustNotExistCondition('function');
       } else {
@@ -503,16 +536,17 @@ export class ElasticIndexerHelper {
       elasticQuery = elasticQuery.withMustMatchCondition('isRelayed', filter.isRelayed);
     }
 
+    if (filter.round) {
+      elasticQuery = elasticQuery.withMustMatchCondition('round', filter.round);
+    }
+
     if (filter.condition === QueryConditionOptions.should) {
       if (filter.sender) {
         elasticQuery = elasticQuery.withShouldCondition(QueryType.Match('sender', filter.sender));
       }
 
       if (filter.receivers) {
-        const keys = ['receiver'];
-        if (this.apiConfigService.getIsIndexerV3FlagActive()) {
-          keys.push('receivers');
-        }
+        const keys = ['receiver', 'receivers'];
 
         for (const receiver of filter.receivers) {
           for (const key of keys) {
@@ -524,11 +558,7 @@ export class ElasticIndexerHelper {
       elasticQuery = elasticQuery.withMustMatchCondition('sender', filter.sender);
 
       if (filter.receivers) {
-        const keys = ['receiver'];
-
-        if (this.apiConfigService.getIsIndexerV3FlagActive()) {
-          keys.push('receivers');
-        }
+        const keys = ['receiver', 'receivers'];
 
         const queries: AbstractQuery[] = [];
 
@@ -543,11 +573,7 @@ export class ElasticIndexerHelper {
     }
 
     if (address) {
-      const keys: string[] = ['sender', 'receiver'];
-
-      if (this.apiConfigService.getIsIndexerV3FlagActive()) {
-        keys.push('receivers');
-      }
+      const keys: string[] = ['sender', 'receiver', 'receivers'];
 
       elasticQuery = elasticQuery.withMustMultiShouldCondition(keys, key => QueryType.Match(key, address));
     }
@@ -632,6 +658,10 @@ export class ElasticIndexerHelper {
       elasticQuery = elasticQuery.withMustMultiShouldCondition(filter.addresses, address => QueryType.Match('address', address));
     }
 
+    if (filter.search) {
+      elasticQuery = elasticQuery.withSearchWildcardCondition(filter.search, ['address', 'api_assets.name']);
+    }
+
     return elasticQuery;
   }
 
@@ -656,7 +686,7 @@ export class ElasticIndexerHelper {
       elasticQuery = elasticQuery.withShouldCondition(QueryType.Match('receiver', filter.receiver));
     }
 
-    if (filter.functions && filter.functions.length > 0 && this.apiConfigService.getIsIndexerV3FlagActive()) {
+    if (filter.functions && filter.functions.length > 0) {
       if (filter.functions.length === 1 && filter.functions[0] === '') {
         elasticQuery = elasticQuery.withMustNotExistCondition('function');
       } else {
@@ -688,5 +718,35 @@ export class ElasticIndexerHelper {
       functionConditions.push(QueryType.Match('operation', field));
     }
     return elasticQuery.withMustCondition(QueryType.Should(functionConditions));
+  }
+
+  public buildEventsFilter(filter: EventsFilter): ElasticQuery {
+    let elasticQuery = ElasticQuery.create();
+
+    if (filter.before) {
+      elasticQuery = elasticQuery.withRangeFilter('timestamp', new RangeLowerThanOrEqual(filter.before));
+    }
+
+    if (filter.after) {
+      elasticQuery = elasticQuery.withRangeFilter('timestamp', new RangeGreaterThanOrEqual(filter.after));
+    }
+
+    if (filter.identifier) {
+      elasticQuery = elasticQuery.withMustMatchCondition('identifier', filter.identifier);
+    }
+
+    if (filter.txHash) {
+      elasticQuery = elasticQuery.withMustMatchCondition('txHash', filter.txHash);
+    }
+
+    if (filter.shard) {
+      elasticQuery = elasticQuery.withCondition(QueryConditionOptions.must, QueryType.Match('shardID', filter.shard));
+    }
+
+    if (filter.address) {
+      elasticQuery = elasticQuery.withMustMatchCondition('address', filter.address);
+    }
+
+    return elasticQuery;
   }
 }

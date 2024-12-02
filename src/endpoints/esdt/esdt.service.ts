@@ -86,8 +86,7 @@ export class EsdtService {
 
   async getEsdtTokenPropertiesRaw(identifier: string): Promise<TokenProperties | null> {
     const getCollectionPropertiesFromGateway = this.apiConfigService.getCollectionPropertiesFromGateway();
-    const isIndexerV5Active = await this.elasticIndexerService.isIndexerV5Active();
-    if (isIndexerV5Active && !getCollectionPropertiesFromGateway) {
+    if (!getCollectionPropertiesFromGateway) {
       return await this.getEsdtTokenPropertiesRawFromElastic(identifier);
     } else {
       return await this.getEsdtTokenPropertiesRawFromGateway(identifier);
@@ -177,8 +176,7 @@ export class EsdtService {
   }
 
   async getAllFungibleTokenProperties(): Promise<TokenProperties[]> {
-    const isIndexerV5Active = await this.elasticIndexerService.isIndexerV5Active();
-    if (isIndexerV5Active && !this.apiConfigService.getCollectionPropertiesFromGateway()) {
+    if (!this.apiConfigService.getCollectionPropertiesFromGateway()) {
       return await this.getAllFungibleTokenPropertiesFromElastic();
     } else {
       return await this.getAllFungibleTokenPropertiesFromGateway();
@@ -216,7 +214,9 @@ export class EsdtService {
       identifier: elasticProperties.identifier,
       name: elasticProperties.name,
       type: elasticProperties.type as EsdtType,
+      subType: elasticProperties.type as EsdtSubType,
       owner: elasticProperties.currentOwner,
+      ownersHistory: elasticProperties.ownersHistory,
       decimals: elasticProperties.numDecimals,
       canUpgrade: elasticProperties.properties?.canUpgrade ?? false,
       canMint: elasticProperties.properties?.canMint ?? false,

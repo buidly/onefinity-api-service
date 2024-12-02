@@ -1,7 +1,6 @@
 import { Module } from "@nestjs/common";
 import { NftMediaModule } from "src/queue.worker/nft.worker/queue/job-services/media/nft.media.module";
 import { AccountModule } from "./accounts/account.module";
-import { ApplicationModule } from "./applications/application.module";
 import { BlockModule } from "./blocks/block.module";
 import { BlsModule } from "./bls/bls.module";
 import { CollectionModule } from "./collections/collection.module";
@@ -19,7 +18,6 @@ import { NetworkModule } from "./network/network.module";
 import { NftModule } from "./nfts/nft.module";
 import { TagModule } from "./nfttags/tag.module";
 import { NodeModule } from "./nodes/node.module";
-import { PoolModule } from "./pool/pool.module";
 import { ProcessNftsModule } from "./process-nfts/process.nfts.module";
 import { ProviderModule } from "./providers/provider.module";
 import { RoundModule } from "./rounds/round.module";
@@ -27,7 +25,6 @@ import { SmartContractResultModule } from "./sc-results/scresult.module";
 import { ShardModule } from "./shards/shard.module";
 import { StakeModule } from "./stake/stake.module";
 import { TokenModule } from "./tokens/token.module";
-import { TpsModule } from "./tps/tps.module";
 import { TransactionsBatchModule } from "./transactions.batch/transactions.batch.module";
 import { TransactionActionModule } from "./transactions/transaction-action/transaction.action.module";
 import { TransactionModule } from "./transactions/transaction.module";
@@ -36,6 +33,10 @@ import { UsernameModule } from "./usernames/username.module";
 import { VmQueryModule } from "./vm.query/vm.query.module";
 import { WaitingListModule } from "./waiting-list/waiting.list.module";
 import { WebsocketModule } from "./websocket/websocket.module";
+import { PoolModule } from "./pool/pool.module";
+import { TpsModule } from "./tps/tps.module";
+import { ApplicationModule } from "./applications/application.module";
+import { EventsModule } from "./events/events.module";
 
 @Module({
   imports: [
@@ -77,13 +78,14 @@ import { WebsocketModule } from "./websocket/websocket.module";
     TpsModule,
     ApplicationModule,
     FaucetModule,
+    EventsModule,
   ],
   exports: [
     AccountModule, CollectionModule, BlockModule, DelegationModule, DelegationLegacyModule, IdentitiesModule, KeysModule,
     MiniBlockModule, NetworkModule, NftModule, NftMediaModule, TagModule, NodeModule, ProviderModule,
     RoundModule, SmartContractResultModule, ShardModule, StakeModule, TokenModule, RoundModule, TransactionModule, UsernameModule, VmQueryModule,
     WaitingListModule, EsdtModule, BlsModule, DappConfigModule, TransferModule, PoolModule, TransactionActionModule, WebsocketModule, MexModule,
-    ProcessNftsModule, NftMarketplaceModule, TransactionsBatchModule, TpsModule, ApplicationModule, FaucetModule
+    ProcessNftsModule, NftMarketplaceModule, TransactionsBatchModule, TpsModule, ApplicationModule, FaucetModule, EventsModule
   ],
 })
 export class EndpointsServicesModule { }

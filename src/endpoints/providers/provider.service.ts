@@ -280,6 +280,10 @@ export class ProviderService {
   }
 
   async getAllProvidersRaw(): Promise<Provider[]> {
+    if (this.apiConfigService.isProvidersFetchFeatureEnabled()) {
+      return await this.getProviderAddressesFromApi();
+    }
+
     const providerAddresses = await this.getProviderAddresses();
 
     const [configs, numUsers, cumulatedRewards] = await Promise.all([
@@ -329,6 +333,19 @@ export class ProviderService {
     }
 
     return providersRaw;
+  }
+
+  async getProviderAddressesFromApi(): Promise<Provider[]> {
+    try {
+      const { data } = await this.apiService.get(`${this.apiConfigService.getProvidersFetchServiceUrl()}/providers`, { params: { size: 10000 } });
+
+      return data;
+    } catch (error) {
+      this.logger.error('An unhandled error occurred when getting tokens from API');
+      this.logger.error(error);
+
+      throw error;
+    }
   }
 
   async getProviderAddresses() {

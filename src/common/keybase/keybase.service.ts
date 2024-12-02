@@ -3,8 +3,6 @@ import { NodeService } from "src/endpoints/nodes/node.service";
 import { ProviderService } from "src/endpoints/providers/provider.service";
 import { KeybaseIdentity } from "./entities/keybase.identity";
 import { CacheInfo } from "../../utils/cache.info";
-import fs from 'fs';
-import { readdir } from 'fs/promises';
 import { AssetsService } from "../assets/assets.service";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import { OriginLogger } from "@multiversx/sdk-nestjs-common";
@@ -26,13 +24,8 @@ export class KeybaseService {
   ) { }
 
   private async getDistinctIdentities(): Promise<string[]> {
-    const dirContents = await readdir(this.assetsService.getIdentityAssetsPath(), { withFileTypes: true });
-
-    const identities = dirContents
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
-
-    return identities;
+    const identities = await this.assetsService.getAllIdentitiesRaw();
+    return Object.keys(identities);
   }
 
   async confirmIdentities(): Promise<void> {
@@ -53,8 +46,8 @@ export class KeybaseService {
     }
   }
 
-  getOwners(identity: string): string[] | undefined {
-    const info = this.readIdentityInfoFile(identity);
+  async getOwners(identity: string): Promise<string[] | undefined> {
+    const info = await this.readIdentityInfo(identity);
     if (!info || !info.owners) {
       return undefined;
     }
@@ -63,7 +56,7 @@ export class KeybaseService {
   }
 
   async confirmIdentity(identity: string, providerAddresses: string[], blsIdentityDict: Record<string, string>, confirmations: Record<string, string>): Promise<void> {
-    const keys = this.getOwners(identity);
+    const keys = await this.getOwners(identity);
     if (!keys) {
       return;
     }
@@ -105,12 +98,12 @@ export class KeybaseService {
 
   async confirmIdentityProfiles(): Promise<void> {
     const identities = await this.getDistinctIdentities();
-    const keybaseIdentities = identities.map(identity => this.getProfile(identity));
+    const keybaseIdentities = await Promise.all(identities.map(identity => this.getProfile(identity)));
     await this.cachingService.set(CacheInfo.IdentityProfilesKeybases.key, keybaseIdentities, CacheInfo.IdentityProfilesKeybases.ttl);
   }
 
-  getProfile(identity: string): KeybaseIdentity | null {
-    const keybaseLocal = this.getProfileFromAssets(identity);
+  async getProfile(identity: string): Promise<KeybaseIdentity | null> {
+    const keybaseLocal = await this.getProfileFromAssets(identity);
     if (keybaseLocal) {
       this.logger.log(`Got profile details from assets for identity '${identity}'`);
       return keybaseLocal;
@@ -119,18 +112,13 @@ export class KeybaseService {
     return null;
   }
 
-  private readIdentityInfoFile(identity: string): any {
-    const filePath = this.assetsService.getIdentityInfoJsonPath(identity);
-    if (!fs.existsSync(filePath)) {
-      return null;
-    }
-
-    const info = JSON.parse(fs.readFileSync(filePath).toString());
-    return info;
+  private async readIdentityInfo(identity: string): Promise<any> {
+    const identityInfo = await this.assetsService.getIdentityInfo(identity);
+    return identityInfo;
   }
 
-  getProfileFromAssets(identity: string): KeybaseIdentity | null {
-    const info = this.readIdentityInfoFile(identity);
+  async getProfileFromAssets(identity: string): Promise<KeybaseIdentity | null> {
+    const info = await this.readIdentityInfo(identity);
     if (!info) {
       return null;
     }

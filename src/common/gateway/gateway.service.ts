@@ -31,6 +31,7 @@ export class GatewayService {
     GatewayComponentRequest.addressNftByNonce,
     GatewayComponentRequest.vmQuery,
     GatewayComponentRequest.transactionPool,
+    GatewayComponentRequest.guardianData,
   ]);
 
   private readonly deepHistoryRequestsSet: Set<String> = new Set([
@@ -167,7 +168,7 @@ export class GatewayService {
   }
 
   async getTransactionPool(): Promise<TxPoolGatewayResponse> {
-    return await this.get(`transaction/pool?fields=nonce,sender,receiver,gaslimit,gasprice,receiverusername,data,value`, GatewayComponentRequest.transactionPool);
+    return await this.get(`transaction/pool?fields=*`, GatewayComponentRequest.transactionPool);
   }
 
   async getTransaction(txHash: string): Promise<Transaction | undefined> {
