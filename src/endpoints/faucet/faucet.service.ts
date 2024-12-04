@@ -96,7 +96,7 @@ export class FaucetService {
         gasLimit: BigInt(500000),
         sender: this.faucetAccount.address,
         receiver: AddressUtilsV13.isAddressValid(address) ? address : this.apiConfigService.getCrossAddressTransferContract(),
-        value: BigInt(5000000000000000000), // 5 ONE
+        value: BigInt(5000000000000000000000), // 5 ONE
         chainID: this.apiConfigService.getChainId(),
         nonce: nonce,
         data: AddressUtilsV13.isAddressValid(address) ? undefined : new TransactionPayload(`crossAddressTransfer@${AddressUtilsV13.sliceEvmAddress(address)}@0002`)
